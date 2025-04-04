@@ -1,49 +1,18 @@
 // 리액트 관련 기본 모듈
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from './screens/HomeScreen';
-import SignupScreen from './screens/SignupScreen';
-import BottomNav from './navigation/BottomNav';
-
-export type RootStackParamList = {
-  Home: undefined;
-  Signup: undefined;
-  BottomNav: undefined; // 
-
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+import MainStack from './navigation/MainStack';
+import { AppRegistry } from 'react-native';
+import { name as appName } from './app.json';
+import { NavigationContainer } from '@react-navigation/native'; 
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        
-        {/* 🔐 앱 시작 시 가장 먼저 보여줄 로그인(Home) 화면 */}
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ headerShown: false }} // ✅ 상단 헤더(←Home 같은 것) 안 보이게
-        />
-
-        {/* 📝 회원가입 화면 */}
-        <Stack.Screen
-          name="Signup"
-          component={SignupScreen}
-          options={{ title: '회원가입' }} // ✅ 회원가입만 상단 제목 보여줘도 됨!
-        />
-
-        {/* 🧭 하단 탭 네비게이션 (BottomNav = Main, 캘린더, 마이페이지 포함) */}
-        <Stack.Screen
-          name="BottomNav"
-          component={BottomNav}
-          options={{ headerShown: false }} // ✅ 가장 중요: 상단에 "BottomNav" 안 보이게!
-        />
-        
-      </Stack.Navigator>
+    <NavigationContainer> {/* ✅ 내비게이션 컨테이너로 감싸기 */}
+      <MainStack />
     </NavigationContainer>
   );
 };
+
+AppRegistry.registerComponent(appName, () => App);
 
 export default App;

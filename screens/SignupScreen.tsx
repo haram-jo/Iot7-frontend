@@ -1,10 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../App'; 
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { API_URL } from "@env";
+import { RootStackParamList } from "../navigation/MainStack";
 
 const SignupScreen = () => {
   const [name, setName] = useState("");
@@ -13,53 +22,49 @@ const SignupScreen = () => {
   const [preferredFood, setPreferredFood] = useState("");
   const [allergicFood, setAllergicFood] = useState("");
 
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-
-
-
-
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const signup = async () => {
     try {
+      // Firebase에서 이메일 & 비밀번호로 인증(회원가입)
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-
-        //Firebase에서 이메일 & 비밀번호로 인증(회원가입)
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-        //DB에 사용자 정보 저장 > url 자기 컴퓨터 ip로 바꿔줘야함!       
-        await fetch("http://10.20.64.118:8080/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            uid: userCredential.user.uid,
-            name,
-            email,
-            password,      
-            preferredFood,
-            allergicFood,
-          }),
+      // DB에 사용자 정보 저장
+      await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uid: userCredential.user.uid,
+          name,
+          email,
+          password,
+          preferredFood,
+          allergicFood,
+        }),
+      })
+        .then(async (response) => {
+          if (!response.ok) {
+            const errorText = await response.text(); // 에러 메시지 읽기
+            throw new Error(errorText);
+          }
+          return response.json();
         })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("회원가입 실패: " + response.status);
-            }
-            return response.json();
-          })
-          .then((data) => {
-            Alert.alert("회원가입 완료! 환영합니다!");
-            navigation.navigate("BottomNav");
-
-            
-          })
-          .catch((error) => {
-            Alert.alert(error.message);
-          });
-        
-    } catch (error) {
-      Alert.alert(error.message);
+        .then((data) => {
+          Alert.alert("회원가입 완료! 환영합니다!");
+          navigation.navigate("BottomNav");
+        })
+        .catch((error) => {
+          Alert.alert("회원가입 실패", error.message);
+        });
+    } catch (error: any) {
+      Alert.alert("회원가입 실패", error.message);
     }
   };
 
@@ -75,17 +80,17 @@ const SignupScreen = () => {
           placeholderTextColor="#7a7a7a"
           onChangeText={setName}
         />
-     <TextInput
-         style={styles.input}
+        <TextInput
+          style={styles.input}
           placeholder="이메일"
           placeholderTextColor="#7a7a7a"
           autoCapitalize="none"
           autoCorrect={false}
           value={email}
           onChangeText={(text) => {
-        setEmail(text.toLowerCase());
-  }}
-/>
+            setEmail(text.toLowerCase());
+          }}
+        />
         <TextInput
           style={styles.input}
           placeholder="비밀번호"
@@ -105,7 +110,6 @@ const SignupScreen = () => {
           placeholderTextColor="#7a7a7a"
           onChangeText={setAllergicFood}
         />
-
         <TouchableOpacity style={styles.signupButton} onPress={signup}>
           <Text style={styles.buttonText}>회원가입</Text>
         </TouchableOpacity>

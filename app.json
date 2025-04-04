@@ -18,8 +18,7 @@
       "storageBucket": "iot7-435d1.firebasestorage.app",
       "messagingSenderId": "981339430588",
       "appId": "1:981339430588:web:7b265ed5b76d038c7afab9",
-      "webClientId": "981339430588-ndvb7vp3eg9fp2l1tk1q4eu5pjp1s3mf.apps.googleusercontent.com",
-      "API_BASE_URL": "http://52.79.249.48:8080/auth"
+      "webClientId": "981339430588-ndvb7vp3eg9fp2l1tk1q4eu5pjp1s3mf.apps.googleusercontent.com"
     }
   }
 }

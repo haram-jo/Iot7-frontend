@@ -1,15 +1,13 @@
 // auth.ts
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../services/firebaseConfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-
-
-//aws 서버 쓰는 거 아님 ~~~~~~~~~ !!!!!!!! 
-const API_BASE_URL = "http://localhost:8080/api/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../services/firebaseConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { API_URL } from '@env';
 
 
 
+// 인증 관련 함수들만 모아둔 곳, 전부 Firebase 인증 + 서버 연동 관련기능 
 
 // 🔹 회원가입 (Firebase 계정 생성 + 추가정보 서버 전송)
 export const signUpWithEmail = async (
@@ -23,18 +21,18 @@ export const signUpWithEmail = async (
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
     const token = await user.getIdToken();
 
-    const { data } = await axios.post(`${API_BASE_URL}/register`, {
+    const { data } = await axios.post(`${API_URL}/register`, {
       token, name, email, preferredFood, allergicFood
     });
 
     // 회원가입 후 자동 로그인 처리 (토큰 저장)
-    await AsyncStorage.setItem("userToken", token);
-    await AsyncStorage.setItem("userData", JSON.stringify(data));
+    await AsyncStorage.setItem('userToken', token);
+    await AsyncStorage.setItem('userData', JSON.stringify(data));
 
     return { success: true, user: data };
 
   } catch (error: any) {
-    console.error("회원가입 실패:", error);
+    console.error('회원가입 실패:', error);
     return { success: false, error: error.response?.data?.message || error.message };
   }
 };
@@ -43,13 +41,13 @@ export const signUpWithEmail = async (
 
 
 
-// 🔹 로그인 (Firebase 인증 후 서버에 토큰 전달하여 사용자 정보 조회)
+// 🔹 로그인 (Firebase 인증, 서버에 토큰 전달, 사용자 정보 조회)
 export const signInWithEmail = async (email: string, password: string) => {
   try {
     const { user } = await signInWithEmailAndPassword(auth, email, password);
     const token = await user.getIdToken();
 
-    const { data } = await axios.post(`${API_BASE_URL}/login`, { token });
+    const { data } = await axios.post(`${API_URL}/login`, { token });
 
     await AsyncStorage.setItem("userToken", token);
     await AsyncStorage.setItem("userData", JSON.stringify(data));
