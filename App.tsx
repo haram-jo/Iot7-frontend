@@ -1,15 +1,15 @@
 // 리액트 관련 기본 모듈
 import React from 'react';
 import MainStack from './navigation/MainStack';
-import { AppRegistry } from 'react-native';
-import { name as appName } from './app.json';
-import { NavigationContainer } from '@react-navigation/native'; 
+import {AppRegistry} from 'react-native';
+import {name as appName} from './app.json';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const App = () => {
   return (
-    <NavigationContainer> {/* ✅ 내비게이션 컨테이너로 감싸기 */}
+    <GestureHandlerRootView style={{flex: 1}}>
       <MainStack />
-    </NavigationContainer>
+    </GestureHandlerRootView>
   );
 };
 

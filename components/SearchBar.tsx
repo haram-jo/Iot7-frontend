@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { View, TextInput, Dimensions, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import {View, TextInput, Dimensions, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 // ✅ props로 onSearch 받기(홈화면 검색할때 필요한 것들)
-const SearchBar = ({ onSearch }) => {
+const SearchBar = ({onSearch}) => {
   const [input, setInput] = useState('');
 
   // ✅ 홈화면에서 검색창에 검색했을때 실행되는는 함수
@@ -28,8 +28,7 @@ const SearchBar = ({ onSearch }) => {
         paddingHorizontal: width * 0.03,
         elevation: 2,
         marginVertical: width * 0.03,
-      }}
-    >
+      }}>
       <Icon name="menu" size={width * 0.06} color="#333" />
 
       {/* ✅ 입력 상태 반영 */}

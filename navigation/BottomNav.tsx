@@ -1,7 +1,7 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import CalenderScreen from '../screens/CalenderScreen';
+import CalendarScreen from '../screens/CalendarScreen';
 import MyPageScreen from '../screens/MyPageScreen';
 import HomeScreen from '../screens/HomeScreen';
 
@@ -9,7 +9,7 @@ import HomeScreen from '../screens/HomeScreen';
 const Tab = createBottomTabNavigator();
 
 // Icon 컴포넌트 밖으로 분리
-const homeIcon = ({ color }: { color: string }) => (
+const homeIcon = ({color}: {color: string}) => (
   <Icon name="home" size={24} color={color} />
 );
 
@@ -19,20 +19,19 @@ const BottomTabNavigator = (): JSX.Element => {
       id={undefined}
       // id="BottomTab" // ✅ 타입스크립트 오류 방지용 id
       initialRouteName="Main" // ✅ 앱 처음 실행 시 열릴 탭 이름
-      screenOptions={{ headerShown: false }} // ✅ 각 탭 상단의 헤더(제목줄)
+      screenOptions={{headerShown: false}} // ✅ 각 탭 상단의 헤더(제목줄)
     >
-
       {/* 📅 캘린더 탭 */}
       <Tab.Screen
-        name="Calender"
-        component={CalenderScreen}
+        name="Calendar"
+        component={CalendarScreen}
         options={{
           tabBarIcon: homeIcon,
           tabBarLabel: '캘린더',
         }}
       />
-            {/* 🏠 메인 탭 */}
-            <Tab.Screen
+      {/* 🏠 메인 탭 */}
+      <Tab.Screen
         name="Main" // ✅ 탭 이름 (탭 전환 시 사용하는 key)
         component={HomeScreen} // ✅ 이 탭을 누르면 보여줄 화면 컴포넌트
         options={{

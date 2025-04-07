@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,36 +6,35 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import SearchBar from '../components/SearchBar';
 import FilterModal from '../components/FilterModal';
 import BrandFilterModal from '../components/BrandFilterModal';
-import { API_URL } from '@env';
+import {API_URL} from '@env';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 const SearchResultScreen = () => {
-  const route = useRoute();   
+  const route = useRoute();
   const initialResults = route.params?.results || []; //🔹이전 화면(HomeScreen)에서 받은 검색 결과
   const [results, setResults] = useState(initialResults);
   const [modalVisible, setModalVisible] = useState(false); //🔹필터 모달 창 여닫기
   const [brandModalVisible, setBrandModalVisible] = useState(false); //🔹브랜드 모달 상태 추가
   const [allSearchResults, setAllSearchResults] = useState(initialResults); //🔹전체 검색 결과 저장
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState(''); //🔹현재 검색어 상태 
-
+  const [searchKeyword, setSearchKeyword] = useState(''); //🔹현재 검색어 상태
 
   // ✅ 검색창에서 키워드검색시 실행되는 함수
   const handleSearch = async (keyword: string) => {
     try {
       setSearchKeyword(keyword); // 현재 검색어 상태 저장
       setSelectedBrand(null); // 검색 시 기존 브랜드 선택 해제
-      setModalVisible(false); 
+      setModalVisible(false);
       setBrandModalVisible(false);
 
       const response = await fetch(
-        `${API_URL}/menu/search?keyword=${encodeURIComponent(keyword)}`
+        `${API_URL}/menu/search?keyword=${encodeURIComponent(keyword)}`,
       );
       let data = await response.json();
       setAllSearchResults(data); // 검색어 전체 저장
@@ -51,22 +50,27 @@ const SearchResultScreen = () => {
 
     // ✅ 1. 재료 키워드 필터링 (ex: '우유' 포함된 메뉴만 보기)
     if (filters.ingredientKeyword) {
-      filtered = filtered.filter((item) =>
-        item.ingredients?.toLowerCase().includes(filters.ingredientKeyword.toLowerCase())
+      filtered = filtered.filter(item =>
+        item.ingredients
+          ?.toLowerCase()
+          .includes(filters.ingredientKeyword.toLowerCase()),
       );
     }
 
     // ✅ 2. 재료 제외 키워드 필터링 (ex: '우유' 제외한 메뉴만 보기)
     if (filters.excludeKeyword) {
-      filtered = filtered.filter((item) =>
-        !item.ingredients?.toLowerCase().includes(filters.excludeKeyword.toLowerCase())
+      filtered = filtered.filter(
+        item =>
+          !item.ingredients
+            ?.toLowerCase()
+            .includes(filters.excludeKeyword.toLowerCase()),
       );
-    } 
+    }
 
     // 브랜드 필터링도 함께 적용 (브랜드 선택된 경우)
     if (selectedBrand) {
       filtered = filtered.filter(
-        (item) => item.businessUser?.businessName === selectedBrand
+        item => item.businessUser?.businessName === selectedBrand,
       );
     }
 
@@ -87,7 +91,8 @@ const SearchResultScreen = () => {
         break;
       case '신상순':
         filtered.sort(
-          (a, b) => new Date(b.regDate).getTime() - new Date(a.regDate).getTime()
+          (a, b) =>
+            new Date(b.regDate).getTime() - new Date(a.regDate).getTime(),
         );
     }
 
@@ -99,7 +104,7 @@ const SearchResultScreen = () => {
     setSelectedBrand(brandName); // 🔹 선택한 브랜드 저장
 
     const filtered = allSearchResults.filter(
-      (item) => item.businessUser?.businessName === brandName
+      item => item.businessUser?.businessName === brandName,
     );
 
     setResults(filtered);
@@ -107,8 +112,8 @@ const SearchResultScreen = () => {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={{ paddingTop: 45 }}>
+    <ScrollView style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={{paddingTop: 45}}>
         <SearchBar onSearch={handleSearch} />
         <View
           style={{
@@ -116,9 +121,8 @@ const SearchResultScreen = () => {
             justifyContent: 'space-between',
             paddingHorizontal: 20,
             marginBottom: 10,
-          }}
-        >
-          { /*✅ 브랜드필터 버튼 ui*/ }
+          }}>
+          {/*✅ 브랜드필터 버튼 ui*/}
           <TouchableOpacity
             onPress={() => setBrandModalVisible(true)}
             style={{
@@ -128,25 +132,23 @@ const SearchResultScreen = () => {
               paddingHorizontal: 12,
               paddingVertical: 6,
               borderRadius: 20, // 타원형 만들기
-            }}
-          >
+            }}>
             <Icon name="storefront-outline" size={20} color="#333" />
-            <Text style={{ fontSize: 14, marginLeft: 4 }}>브랜드</Text>
+            <Text style={{fontSize: 14, marginLeft: 4}}>브랜드</Text>
           </TouchableOpacity>
 
-          { /*✅ 일반필터 버튼 ui*/ }
+          {/*✅ 일반필터 버튼 ui*/}
           <TouchableOpacity
             onPress={() => setModalVisible(true)}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-          >
+            style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
             <Icon name="filter" size={20} color="#333" />
-            <Text style={{ fontSize: 14 }}>필터</Text>
+            <Text style={{fontSize: 14}}>필터</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      { /* 검색 결과 리스트 */ }
-      <View style={{ padding: 16 }}>
+      {/* 검색 결과 리스트 */}
+      <View style={{padding: 16}}>
         {Array.isArray(results) && results.length > 0 ? (
           results.map((menu, idx) => (
             <View
@@ -161,20 +163,30 @@ const SearchResultScreen = () => {
                 gap: 12,
                 shadowColor: '#ccc',
                 shadowOpacity: 0.3,
-                shadowOffset: { width: 0, height: 1 },
-              }}
-            >
+                shadowOffset: {width: 0, height: 1},
+              }}>
               <View
-                style={{ width: 70, height: 70, backgroundColor: '#e0e0e0', borderRadius: 6 }}
+                style={{
+                  width: 70,
+                  height: 70,
+                  backgroundColor: '#e0e0e0',
+                  borderRadius: 6,
+                }}
               />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{menu.menuName}</Text>
-                <Text style={{ color: '#333', marginTop: 4 }}>{menu.price.toLocaleString()}원</Text>
+              <View style={{flex: 1}}>
+                <Text style={{fontWeight: 'bold', fontSize: 16}}>
+                  {menu.menuName}
+                </Text>
+                <Text style={{color: '#333', marginTop: 4}}>
+                  {menu.price.toLocaleString()}원
+                </Text>
               </View>
             </View>
           ))
         ) : (
-          <Text style={{ textAlign: 'center', marginTop: 20 }}>검색 결과가 없습니다.</Text>
+          <Text style={{textAlign: 'center', marginTop: 20}}>
+            검색 결과가 없습니다.
+          </Text>
         )}
       </View>
 

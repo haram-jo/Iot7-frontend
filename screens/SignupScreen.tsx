@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,20 +7,20 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
-} from "react-native";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../services/firebaseConfig";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { API_URL } from "@env";
-import { RootStackParamList } from "../navigation/MainStack";
+} from 'react-native';
+import {createUserWithEmailAndPassword} from 'firebase/auth';
+import {auth} from '../services/firebaseConfig';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {API_URL} from '@env';
+import {RootStackParamList} from '../navigation/MainStack';
 
 const SignupScreen = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [preferredFood, setPreferredFood] = useState("");
-  const [allergicFood, setAllergicFood] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [preferredFood, setPreferredFood] = useState('');
+  const [allergicFood, setAllergicFood] = useState('');
 
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -31,14 +31,14 @@ const SignupScreen = () => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
 
       // DB에 사용자 정보 저장
       await fetch(`${API_URL}/api/auth/register`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           uid: userCredential.user.uid,
@@ -49,22 +49,22 @@ const SignupScreen = () => {
           allergicFood,
         }),
       })
-        .then(async (response) => {
+        .then(async response => {
           if (!response.ok) {
             const errorText = await response.text(); // 에러 메시지 읽기
             throw new Error(errorText);
           }
           return response.json();
         })
-        .then((data) => {
-          Alert.alert("회원가입 완료! 환영합니다!");
-          navigation.navigate("BottomNav");
+        .then(data => {
+          Alert.alert('회원가입 완료! 환영합니다!');
+          navigation.navigate('BottomNav');
         })
-        .catch((error) => {
-          Alert.alert("회원가입 실패", error.message);
+        .catch(error => {
+          Alert.alert('회원가입 실패', error.message);
         });
     } catch (error: any) {
-      Alert.alert("회원가입 실패", error.message);
+      Alert.alert('회원가입 실패', error.message);
     }
   };
 
@@ -87,7 +87,7 @@ const SignupScreen = () => {
           autoCapitalize="none"
           autoCorrect={false}
           value={email}
-          onChangeText={(text) => {
+          onChangeText={text => {
             setEmail(text.toLowerCase());
           }}
         />
@@ -121,51 +121,51 @@ const SignupScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: "#f4f0fc",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#f4f0fc',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 20,
   },
   title: {
     fontSize: 36,
-    fontWeight: "bold",
-    color: "#6a3cbc",
+    fontWeight: 'bold',
+    color: '#6a3cbc',
   },
   subtitle: {
     fontSize: 18,
-    color: "#6a3cbc",
+    color: '#6a3cbc',
     marginBottom: 20,
   },
   signupBox: {
-    width: "80%",
-    backgroundColor: "white",
+    width: '80%',
+    backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
-    alignItems: "center",
+    alignItems: 'center',
   },
   input: {
-    width: "100%",
+    width: '100%',
     height: 40,
     borderBottomWidth: 1,
-    borderBottomColor: "#6a3cbc",
+    borderBottomColor: '#6a3cbc',
     marginBottom: 15,
     paddingHorizontal: 10,
   },
   signupButton: {
     marginTop: 10,
-    width: "100%",
-    backgroundColor: "#6a3cbc",
+    width: '100%',
+    backgroundColor: '#6a3cbc',
     padding: 10,
-    alignItems: "center",
+    alignItems: 'center',
     borderRadius: 5,
   },
   buttonText: {
-    color: "white",
-    fontWeight: "bold",
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
