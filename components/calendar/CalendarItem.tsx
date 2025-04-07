@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
-import GlobalStyles from '../styles/GlobalStyles';
-import categoryColors from '../styles/categoryColors';
+import GlobalStyles from '../../styles/GlobalStyles';
+import categoryColors from '../../styles/categoryColors';
 
 // 캘린더 페이지에서 쓰일 제품들의 카테고리데 따른 색상과 이름을 표시하는 컴포넌트
 const CalendarItem = ({item, style, ...touchableOpacityProps}) => {

@@ -17,7 +17,7 @@ const HomeStack = () => {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Product" component={ProductDetailScreen} />
       <Stack.Screen name="SearchResult" component={SearchResultScreen} />
-      {/* 여기에 위에 같은 형식으로 추가하면됨 */}
+      {/* 여기에 위에 같은 형식으로 추가하면됨*/}
     </Stack.Navigator>
   );
 };

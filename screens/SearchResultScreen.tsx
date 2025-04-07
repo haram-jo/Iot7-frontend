@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import SearchBar from '../components/SearchBar';
+import SearchBar from '../components/mainpage/SearchBar';
 import FilterModal from '../components/FilterModal';
 import BrandFilterModal from '../components/BrandFilterModal';
 import {API_URL} from '@env';

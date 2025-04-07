@@ -5,10 +5,10 @@ import {Calendar} from 'react-native-big-calendar';
 import dayjs from 'dayjs';
 import GlobalStyles from '../styles/GlobalStyles';
 import categoryColors from '../styles/categoryColors';
-import CalendarMonthSelect from '../components/CalendarMonthSelect';
-import CalendarDayModal from '../components/CalendarDayModal';
-import CalendarItemModel from '../components/CalendarItemModel';
-import CalendarItem from '../components/CalendarItem';
+import CalendarMonthSelect from '../components/calendar/CalendarMonthSelect';
+import CalendarDayModal from '../components/calendar/CalendarDayModal';
+import CalendarItemModel from '../components/calendar/CalendarItemModel';
+import CalendarItem from '../components/calendar/CalendarItem';
 
 const {height} = Dimensions.get('window');
 
@@ -37,7 +37,7 @@ const CalendarScreen = () => {
       try {
         const response = await fetch(`${API_URL}/calendar/menus`);
         const data = await response.json();
-        console.log('Received response:', data);
+        // console.log('Received response:', data);
         const mappedEvents = data.map(item => ({
           title: item.menuName,
           start: new Date(
@@ -50,7 +50,7 @@ const CalendarScreen = () => {
           price: item.price,
           brand: item.brand,
         }));
-        console.log('Mapped events:', mappedEvents);
+        // console.log('Mapped events:', mappedEvents);
         setEvents(mappedEvents);
       } catch (error) {
         console.error('Failed to fetch calendar data:', error);
@@ -106,7 +106,9 @@ const CalendarScreen = () => {
         selectedMonth={currentMonth + 1}
         selectYear={year => {
           const newDate = dayjs(currentDate).year(year).toDate();
+
           updateCurrentDate(newDate);
+
           setIsMonthPickerVisible(false);
         }}
         selectMonth={month => {

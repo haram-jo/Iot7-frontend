@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Modal, Text, Image, TouchableWithoutFeedback} from 'react-native';
-import GlobalStyles from '../styles/GlobalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 
 {
   /* 캘린더 제품 클릭 모델 */

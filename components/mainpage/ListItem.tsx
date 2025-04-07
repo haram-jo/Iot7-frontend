@@ -2,9 +2,9 @@ import {useNavigation} from '@react-navigation/native';
 import React, {NamedExoticComponent} from 'react';
 import {View, Text, Dimensions, TouchableOpacity, Image} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import type {RootStackParamList} from '../types/navigation';
+import type {RootStackParamList} from '../../types/navigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import GlobalStyles from '../styles/GlobalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 
 const {width, height} = Dimensions.get('window');
 

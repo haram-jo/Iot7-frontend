@@ -7,12 +7,12 @@ import {
   BackHandler,
   TouchableWithoutFeedback,
 } from 'react-native';
-import GlobalStyles from '../styles/GlobalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 import dayjs from 'dayjs';
 import {FlatList} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {RootStackParamList} from '../navigation/MainStack';
+import type {RootStackParamList} from '../../navigation/MainStack';
 
 {
   /* 날짜 칸 클릭 모델 */

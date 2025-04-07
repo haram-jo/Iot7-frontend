@@ -14,6 +14,9 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {API_URL} from '@env';
 import {RootStackParamList} from '../navigation/MainStack';
+import {Dimensions} from 'react-native';
+
+const {width, height} = Dimensions.get('window');
 
 const SignupScreen = () => {
   const [name, setName] = useState('');
@@ -70,6 +73,11 @@ const SignupScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/*뒤로가기 버튼 추가 */}
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.backButton}>←</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>Sign up</Text>
       <Text style={styles.subtitle}>customer</Text>
 
@@ -166,6 +174,16 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+
+  backButton: {
+    marginTop: height * 0.01, // 위에서 1%
+    marginLeft: width * -0.45, // 왼쪽으로 45% 밀기
+    marginBottom: height * 0.01, // 아래에서 1%
+    fontSize: 25,
+    color: '#6a3cbc',
+    fontWeight: 'bold',
+    top: height * -0.12, // 위로 12% 올리기
   },
 });
 

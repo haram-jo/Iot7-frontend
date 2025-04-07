@@ -5,7 +5,7 @@ import axios from 'axios';
 import {API_URL} from '@env';
 console.log('✅ 적용된 API_URL:', API_URL);
 import ListItem from './ListItem';
-import GlobalStyles from '../styles/GlobalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 
 const {width, height} = Dimensions.get('window');
 
@@ -47,7 +47,12 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
 
   // 백엔드에서 해당 카테고리의 메뉴 가져옴
   useEffect(() => {
-    if (!selectedCategory || typeof selectedCategory !== 'string') {
+    const isValidCategory =
+      selectedCategory &&
+      typeof selectedCategory === 'string' &&
+      selectedCategory.trim() !== '';
+
+    if (!isValidCategory) {
       console.warn('selectedCategory가 올바르지 않습니다:', selectedCategory);
       return;
     }
@@ -61,7 +66,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
         setMenus(response.data);
       })
       .catch(error => {
-        // console.error('/components/CategoryTabs 카테고리 메뉴 오류:', error);
+        console.error('/components/CategoryTabs 카테고리 메뉴 오류:', error);
       });
     // }
   }, [selectedCategory]);

@@ -8,7 +8,7 @@ import {
   BackHandler,
 } from 'react-native';
 import {FlatList} from 'react-native-gesture-handler';
-import GlobalStyles from '../styles/GlobalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 
 {
   /* 월 선택을 위한 모달 */
