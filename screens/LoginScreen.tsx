@@ -13,17 +13,21 @@ import {signInWithEmailAndPassword} from 'firebase/auth';
 import {auth} from '../services/firebaseConfig'; // 🔧 Firebase 설정
 import {API_URL} from '@env';
 import {RootStackParamList} from '../navigation/MainStack';
+import {useContext} from 'react'; //
+import {AuthContext} from '../contexts/AuthContext';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'Login'
 >;
 
+//✅ 컴포넌트 시작
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(''); //이메일 입력값 상태저장
+  const [password, setPassword] = useState(''); //비번 입력값 상태저장
 
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const navigation = useNavigation<LoginScreenNavigationProp>(); //페이지 이동기능 초기화
+  const {login} = useContext(AuthContext); // Authtext에서 로그인 상태랑 로그아웃기능을 받아오겠다
 
   const handleLogin = async () => {
     console.log('🔐 로그인 버튼 눌림');
@@ -33,7 +37,7 @@ const LoginScreen = () => {
         auth,
         email,
         password,
-      );
+      ); // ✅ 파이어베이스 로그인 시도
       const user = userCredential.user;
       const token = await user.getIdToken();
 
@@ -42,7 +46,7 @@ const LoginScreen = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({token}),
+        body: JSON.stringify({token}), // ✅ 토큰을 백엔드에 전달
       });
 
       if (!response.ok) {
@@ -52,7 +56,7 @@ const LoginScreen = () => {
 
       const data = await response.json();
 
-      Alert.alert('로그인 성공!', `${data.userName}님 환영합니다!`);
+      await login(data); // ✅ 로그인 상태 저장
       navigation.navigate('BottomNav');
     } catch (error: any) {
       console.error('로그인 실패:', error);

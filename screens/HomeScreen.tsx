@@ -1,11 +1,12 @@
-import React, {useState, useLayoutEffect} from 'react';
+import React, {useState, useLayoutEffect, useContext} from 'react';
 import {
   ScrollView,
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-} from 'react-native'; // ✅ 필요한 컴포넌트 추가
+} from 'react-native';
+import {Alert} from 'react-native';
 import SearchBar from '../components/mainpage/SearchBar';
 import Banner from '../components/mainpage/Banner';
 import CategoryTabs from '../components/mainpage/CategoryTabs';
@@ -15,6 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types/navigation';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {AuthContext} from '../contexts/AuthContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,6 +24,29 @@ const HomeScreen = () => {
   const [selectedCategory, setSelectedCategory] =
     useState<string>('defaultCategory');
   const navigation = useNavigation(); // ✅ 페이지 이동용 navigation
+  const {user, logout} = useContext(AuthContext); // ✅ 로그인 상태와 로그아웃 기능을 AuthContext에서 받아옴
+
+  // ✅ 로그아웃 버튼 눌렀을때 실행되는 함수
+  const handleLogout = () => {
+    Alert.alert(
+      '로그아웃',
+      '정말 로그아웃 하시겠습니까?',
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '로그아웃',
+          onPress: () => {
+            logout(); // user = null
+          },
+          style: 'destructive',
+        },
+      ],
+      {cancelable: true},
+    );
+  };
 
   // ✅ 검색창에서 키워드 검색 시 실행되는 함수
   const handleSearch = async (keyword: string) => {
@@ -40,7 +65,7 @@ const HomeScreen = () => {
 
   return (
     <ScrollView style={GlobalStyles.container}>
-      {/* ✅ 로그인 버튼 - 검색창 위 오른쪽 정렬 */}
+      {/* ✅ 로그인/로그아웃 버튼 - 검색창 위 오른쪽 정렬 */}
       <View
         style={{
           flexDirection: 'row',
@@ -48,11 +73,18 @@ const HomeScreen = () => {
           paddingHorizontal: 16,
           marginTop: 16,
         }}>
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
+        {user ? ( // ✅ 로그인이 되어 있을 경우
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogout}>
+            <Text style={styles.loginButtonText}>Logout</Text>
+          </TouchableOpacity>
+        ) : (
+          // ✅ 로그인이 안되어 있을 경우
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.loginButtonText}>Login</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* ✅ 검색 기능 연결 */}

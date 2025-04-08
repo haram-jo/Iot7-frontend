@@ -67,7 +67,7 @@ const SignupScreen = () => {
           Alert.alert('회원가입 실패', error.message);
         });
     } catch (error: any) {
-      // ✅ 회원가입 오류났을때, 메세지
+      // ✅ 회원가입 오류났을때, 메세지 예쁘게 포장
       let errorMessage = '';
       switch (error.code) {
         case 'auth/email-already-in-use':
