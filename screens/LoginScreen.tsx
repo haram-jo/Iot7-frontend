@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -23,14 +24,16 @@ type LoginScreenNavigationProp = NativeStackNavigationProp<
 
 //✅ 컴포넌트 시작
 const LoginScreen = () => {
-  const [email, setEmail] = useState(''); //이메일 입력값 상태저장
-  const [password, setPassword] = useState(''); //비번 입력값 상태저장
+  const [email, setEmail] = useState(''); // 이메일 입력값 상태저장
+  const [password, setPassword] = useState(''); // 비번 입력값 상태저장
+  const [isLoading, setIsLoading] = useState(false); // 로그인시 보여줄 로딩 상태 추가
 
-  const navigation = useNavigation<LoginScreenNavigationProp>(); //페이지 이동기능 초기화
-  const {login} = useContext(AuthContext); // Authtext에서 로그인 상태랑 로그아웃기능을 받아오겠다
+  const navigation = useNavigation<LoginScreenNavigationProp>(); // 페이지 이동기능 초기화
+  const {login} = useContext(AuthContext); // 로그인시 Authtext에서 로그인 함수 가져옴
 
   const handleLogin = async () => {
     console.log('🔐 로그인 버튼 눌림');
+    setIsLoading(true); //✅ 로딩 시작
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -64,6 +67,8 @@ const LoginScreen = () => {
         '로그인 실패',
         error.message || '이메일 또는 비밀번호를 확인해주세요.',
       );
+    } finally {
+      setIsLoading(false); // ✅ 로딩 끝
     }
   };
 
@@ -94,7 +99,12 @@ const LoginScreen = () => {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.buttonText}>로그인</Text>
+            {/* ✅ 로딩 중이면 버튼 대신 ActivityIndicator 표시 */}
+            {isLoading ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text style={styles.buttonText}>로그인</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
