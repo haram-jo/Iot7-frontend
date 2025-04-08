@@ -104,7 +104,9 @@ const SearchResultScreen = () => {
     setSelectedBrand(brandName); // 🔹 선택한 브랜드 저장
 
     const filtered = allSearchResults.filter(
-      item => item.businessUser?.businessName === brandName,
+      item =>
+        item.businessUser?.businessName === brandName &&
+        item.businessUser?.businessType === '본점',
     );
 
     setResults(filtered);
