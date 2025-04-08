@@ -67,7 +67,24 @@ const SignupScreen = () => {
           Alert.alert('회원가입 실패', error.message);
         });
     } catch (error: any) {
-      Alert.alert('회원가입 실패', error.message);
+      // ✅ 회원가입 오류났을때, 메세지
+      let errorMessage = '';
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = '이미 사용 중인 이메일이에요.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = '이메일 형식이 올바르지 않아요.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = '비밀번호는 최소 6자 이상이어야 해요.';
+          break;
+        default:
+          errorMessage = '회원가입 중 알 수 없는 오류가 발생했어요.';
+      }
+
+      Alert.alert('회원가입 실패', errorMessage);
+      // ✅ 수정된 부분 끝
     }
   };
 
