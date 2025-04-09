@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import {useRoute} from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/MainStack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import SearchBar from '../components/mainpage/SearchBar';
 import FilterModal from '../components/FilterModal';
@@ -15,8 +17,12 @@ import {API_URL} from '@env';
 
 const {width} = Dimensions.get('window');
 
+// ✅ 제품선택시 상세페이지로 넘어가는 함수
 const SearchResultScreen = () => {
   const route = useRoute();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const initialResults = route.params?.results || []; //🔹이전 화면(HomeScreen)에서 받은 검색 결과
   const [results, setResults] = useState(initialResults);
   const [modalVisible, setModalVisible] = useState(false); //🔹필터 모달 창 여닫기
@@ -149,12 +155,17 @@ const SearchResultScreen = () => {
         </View>
       </View>
 
-      {/* 검색 결과 리스트 */}
+      {/*✅ 상세페이지 이동 추가 */}
       <View style={{padding: 16}}>
         {Array.isArray(results) && results.length > 0 ? (
           results.map((menu, idx) => (
-            <View
+            <TouchableOpacity
               key={menu.menuId || idx}
+              onPress={() =>
+                navigation.navigate('Product', {
+                  menuId: menu.menuId,
+                })
+              }
               style={{
                 marginBottom: 15,
                 backgroundColor: '#fff',
@@ -183,7 +194,7 @@ const SearchResultScreen = () => {
                   {menu.price.toLocaleString()}원
                 </Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))
         ) : (
           <Text style={{textAlign: 'center', marginTop: 20}}>
