@@ -5,6 +5,8 @@ import CalendarScreen from '../screens/CalendarScreen';
 import MyPageScreen from '../screens/MyPageScreen';
 import HomeStack from './HomeStack';
 
+/* 하단탭 네비게이션 설정하는 파일 */
+
 // ✅ 탭 네비게이터 생성 (제네릭 타입 생략: 오류 방지용)
 const Tab = createBottomTabNavigator();
 
@@ -18,8 +20,8 @@ const BottomTabNavigator = (): JSX.Element => {
     <Tab.Navigator
       id={undefined}
       // id="BottomTab" // ✅ 타입스크립트 오류 방지용 id
-      initialRouteName="Main" // ✅ 앱 처음 실행 시 열릴 탭 이름
-      screenOptions={{headerShown: false}} // ✅ 각 탭 상단의 헤더(제목줄)
+      initialRouteName="Main" // ✅ 앱 처음 실행하면 보여줄 화면
+      screenOptions={{headerShown: false}} // ✅ 각 탭 상단 제목줄 안보이도록
     >
       {/* 📅 캘린더 탭 */}
       <Tab.Screen

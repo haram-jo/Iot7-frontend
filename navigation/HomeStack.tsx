@@ -11,12 +11,15 @@ import SearchResultScreen from '../screens/SearchResultScreen';
 }
 const Stack = createNativeStackNavigator();
 
+//첫번째 코드가 HomeScreen이라 첫화면도 *HomeScreen*
+//순서대로 맨 위에 있는 코드가 첫화면에 보여짐
 const HomeStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Product" component={ProductDetailScreen} />
       <Stack.Screen name="SearchResult" component={SearchResultScreen} />
+      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
       {/* 여기에 위에 같은 형식으로 추가하면됨*/}
     </Stack.Navigator>
   );
