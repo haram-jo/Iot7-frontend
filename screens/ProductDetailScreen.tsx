@@ -1,16 +1,27 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
-import {useRoute, RouteProp} from '@react-navigation/native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/MainStack';
 import {API_URL} from '@env';
+import {Ionicons} from '@expo/vector-icons';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
-type ProductRouteProp = RouteProp<RootStackParamList, 'Product'>; ////route 타입 지정해주기기
+type ProductRouteProp = RouteProp<RootStackParamList, 'Product'>;
 
 const ProductDetailScreen = () => {
+  const navigation = useNavigation();
   const route = useRoute<ProductRouteProp>();
-  const {menuId} = route.params; // ✅ SearchResultScreen에서 넘겨준 menuId를 받아옴
+  const {menuId} = route.params;
 
-  const [menuDetail, setMenuDetail] = useState<any>(null); // ✅ API로 받아올 메뉴 정보 상태
+  const [menuDetail, setMenuDetail] = useState<any>(null);
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     const fetchMenuDetail = async () => {
@@ -22,66 +33,203 @@ const ProductDetailScreen = () => {
         console.error('메뉴 상세 조회 오류:', error);
       }
     };
-
     fetchMenuDetail();
   }, [menuId]);
 
-  if (!menuDetail) return <Text style={styles.loading}>로딩중 .. </Text>; //추후 로딩 UI 수정
+  if (!menuDetail) return <Text style={styles.loading}>로딩중...</Text>;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* 메뉴 이름 */}
-      <Text style={styles.title}>{menuDetail.menuName}</Text>
+    <SafeAreaView style={styles.wrapper}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
 
-      {/* 브랜드명 */}
-      <Text style={styles.label}>브랜드: {menuDetail.businessName}</Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* 이미지 + 찜버튼 */}
+        <View style={styles.imageWrapper}>
+          <Image source={{uri: menuDetail.imageUrl}} style={styles.mainImage} />
+          <TouchableOpacity
+            style={styles.heartButton}
+            onPress={() => setIsLiked(!isLiked)}>
+            <Ionicons
+              name={isLiked ? 'heart' : 'heart-outline'}
+              size={28}
+              color={isLiked ? '#e74c3c' : '#aaa'}
+            />
+          </TouchableOpacity>
+        </View>
 
-      {/* 가격 */}
-      <Text style={styles.label}>
-        가격: {menuDetail.price?.toLocaleString()}원
-      </Text>
+        {/* 브랜드 */}
+        <Text style={styles.brandText}>
+          {menuDetail.businessName} 브랜드 &gt;
+        </Text>
 
-      {/* 카테고리 */}
-      <Text style={styles.label}>카테고리: {menuDetail.category}</Text>
+        {/* 이름 + 별점 */}
+        <View style={styles.nameAndStar}>
+          <Text style={styles.menuName}>{menuDetail.menuName}</Text>
+          <Text style={styles.stars}>
+            ⭐ {menuDetail.averageRating?.toFixed(1)}
+          </Text>
+        </View>
 
-      {/* 칼로리 */}
-      <Text style={styles.label}>칼로리: {menuDetail.calorie} kcal</Text>
+        {/* 설명 */}
+        <Text style={styles.description}>{menuDetail.description}</Text>
 
-      {/* 다이어트 여부 */}
-      <Text style={styles.label}>
-        다이어트용인가요? {menuDetail.dietYn ? '네' : '아니오'}
-      </Text>
+        {/* 요약 정보 (칼로리, 중량, 출시일, 가격) */}
+        <View style={styles.summaryTable}>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>가격</Text>
+            <Text style={styles.tableHeader}>칼로리</Text>
+            <Text style={styles.tableHeader}>중량</Text>
+            <Text style={styles.tableHeader}>출시일</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>{menuDetail.price}원</Text>
+            <Text style={styles.tableCell}>{menuDetail.calorie} kcal</Text>
+            <Text style={styles.tableCell}>200g</Text>
+            <Text style={styles.tableCell}>2025.05</Text>
+          </View>
+        </View>
 
-      {/* 설명 */}
-      <Text style={styles.description}>설명: {menuDetail.description}</Text>
+        {/* 브랜드 인기상품 */}
+        <Text style={styles.sectionTitle}>이 브랜드의 인기상품</Text>
+        <View style={styles.rowCards}>
+          {[...Array(3)].map((_, idx) => (
+            <View key={idx} style={styles.card} />
+          ))}
+        </View>
 
-      {/* 추가로 이미지, 리뷰, 조합 등 연결 가능 */}
-    </ScrollView>
+        {/* 추천 메뉴 */}
+        <Text style={styles.sectionTitle}>다른 추천 메뉴</Text>
+        <View style={styles.rowCards}>
+          {[...Array(3)].map((_, idx) => (
+            <View key={idx} style={styles.card} />
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    gap: 12,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 16,
-  },
-  description: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 10,
-  },
+  wrapper: {flex: 1, backgroundColor: '#fff'},
   loading: {
     marginTop: 100,
     textAlign: 'center',
     fontSize: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+  },
+  container: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  imageWrapper: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+  mainImage: {
+    width: '100%',
+    height: 300,
+    borderRadius: 10,
+    backgroundColor: '#eee',
+  },
+  heartButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 6,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    elevation: 3,
+  },
+  brandText: {
+    color: '#777',
+    marginBottom: 6,
+  },
+  nameAndStar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  menuName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    flex: 1,
+    marginRight: 10,
+  },
+  stars: {
+    fontSize: 16,
+    color: '#f1c40f',
+  },
+  description: {
+    fontSize: 14,
+    color: '#444',
+    marginBottom: 4,
+  },
+  summaryTable: {
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    padding: 10,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  tableHeader: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    flex: 1,
+    textAlign: 'center',
+  },
+  tableCell: {
+    fontSize: 14,
+    flex: 1,
+    textAlign: 'center',
+    paddingVertical: 4,
+  },
+  reviewBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 10,
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#ccc',
+  },
+  reviewText: {
+    fontSize: 14,
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: '#aaa',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  rowCards: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  card: {
+    width: 90,
+    height: 90,
+    backgroundColor: '#ddd',
+    borderRadius: 8,
   },
 });
 
