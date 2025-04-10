@@ -12,17 +12,22 @@ import {RootStackParamList} from '../navigation/MainStack';
 import {API_URL} from '@env';
 import {Ionicons} from '@expo/vector-icons';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
+// ✅ 타입 지정
 type ProductRouteProp = RouteProp<RootStackParamList, 'Product'>;
 
+// ✅ 상품 상세 페이지
 const ProductDetailScreen = () => {
-  const navigation = useNavigation();
+  type Navigation = NativeStackNavigationProp<RootStackParamList>; // ✅ 추가
+  const navigation = useNavigation<Navigation>(); // ✅ 뒤로가기 네비기능
   const route = useRoute<ProductRouteProp>();
-  const {menuId} = route.params;
+  const {menuId} = route.params; // ✅ menuId 받아오기
 
-  const [menuDetail, setMenuDetail] = useState<any>(null);
-  const [isLiked, setIsLiked] = useState(false);
+  const [menuDetail, setMenuDetail] = useState<any>(null); // ✅ 상품 정보 저장 state
+  const [isLiked, setIsLiked] = useState(false); // ✅ 찜하기 상태 저장 (하트 눌렀는지)
 
+  // ✅ 상세정보 API 호출
   useEffect(() => {
     const fetchMenuDetail = async () => {
       try {
@@ -40,14 +45,16 @@ const ProductDetailScreen = () => {
 
   return (
     <SafeAreaView style={styles.wrapper}>
+      {/* ✅ 상단 헤더 영역 - 뒤로가기 버튼 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
       </View>
 
+      {/* ✅ 전체 내용을 스크롤할 수 있도록 감쌈 */}
       <ScrollView contentContainerStyle={styles.container}>
-        {/* 이미지 + 찜버튼 */}
+        {/* ✅ 상품 이미지 + 찜하기 버튼 (우측 상단 하트) */}
         <View style={styles.imageWrapper}>
           <Image source={{uri: menuDetail.imageUrl}} style={styles.mainImage} />
           <TouchableOpacity
@@ -61,12 +68,19 @@ const ProductDetailScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* 브랜드 */}
-        <Text style={styles.brandText}>
-          {menuDetail.businessName} 브랜드 &gt;
-        </Text>
+        {/* ✅ 브랜드명 표시 */}
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('BrandMenuList', {
+              brandName: menuDetail.businessName,
+            })
+          }>
+          <Text style={styles.brandText}>
+            {menuDetail.businessName} 브랜드 &gt;
+          </Text>
+        </TouchableOpacity>
 
-        {/* 이름 + 별점 */}
+        {/* ✅ 제품 이름 + 별점 (가로 정렬) */}
         <View style={styles.nameAndStar}>
           <Text style={styles.menuName}>{menuDetail.menuName}</Text>
           <Text style={styles.stars}>
@@ -74,10 +88,10 @@ const ProductDetailScreen = () => {
           </Text>
         </View>
 
-        {/* 설명 */}
+        {/* ✅ 제품 설명 */}
         <Text style={styles.description}>{menuDetail.description}</Text>
 
-        {/* 요약 정보 (칼로리, 중량, 출시일, 가격) */}
+        {/* ✅ 요약 정보 테이블: 가격, 칼로리,중량, 출시일 */}
         <View style={styles.summaryTable}>
           <View style={styles.tableRow}>
             <Text style={styles.tableHeader}>가격</Text>
@@ -93,21 +107,53 @@ const ProductDetailScreen = () => {
           </View>
         </View>
 
-        {/* 브랜드 인기상품 */}
+        {/* ✅ 이 브랜드의 인기상품 (가로 스크롤 카드들) */}
+        {/*가로 스크롤 horizontal 사용 */}
         <Text style={styles.sectionTitle}>이 브랜드의 인기상품</Text>
-        <View style={styles.rowCards}>
-          {[...Array(3)].map((_, idx) => (
-            <View key={idx} style={styles.card} />
-          ))}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.horizontalCards}>
+            {[...Array(6)].map((_, idx) => (
+              <View key={idx} style={styles.card} />
+            ))}
+          </View>
+        </ScrollView>
+
+        {/* ✅ 다른 추천 메뉴 (가로 스크롤 카드들) */}
+        {/*가로 스크롤 horizontal 사용 */}
+        <Text style={styles.sectionTitle}>다른 추천 메뉴</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.horizontalCards}>
+            {[...Array(6)].map((_, idx) => (
+              <View key={idx} style={styles.card} />
+            ))}
+          </View>
+        </ScrollView>
+
+        {/* ✅ 블로그 리뷰 섹션 (이미지 + 요약 텍스트) */}
+        <Text style={styles.sectionTitle}>블로그 리뷰</Text>
+        <View style={styles.reviewBox}>
+          <Image
+            source={{uri: 'https://via.placeholder.com/64'}}
+            style={styles.blogImage}
+          />
+          <View style={{flex: 1, marginLeft: 12}}>
+            <Text style={styles.blogTitle}>CU 신상후기</Text>
+            <Text style={styles.blogDesc} numberOfLines={1}>
+              안녕하세요 오늘은 씨유에 신상이 나왔다고 합..
+            </Text>
+          </View>
         </View>
 
-        {/* 추천 메뉴 */}
-        <Text style={styles.sectionTitle}>다른 추천 메뉴</Text>
-        <View style={styles.rowCards}>
-          {[...Array(3)].map((_, idx) => (
-            <View key={idx} style={styles.card} />
-          ))}
-        </View>
+        {/* ✅ 유튜브 리뷰 섹션 (가로 스크롤 카드) */}
+        {/*가로 스크롤 horizontal 사용 */}
+        <Text style={styles.sectionTitle}>유튜브 리뷰</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.horizontalCards}>
+            {[...Array(6)].map((_, idx) => (
+              <View key={idx} style={styles.card} />
+            ))}
+          </View>
+        </ScrollView>
       </ScrollView>
     </SafeAreaView>
   );
@@ -230,6 +276,33 @@ const styles = StyleSheet.create({
     height: 90,
     backgroundColor: '#ddd',
     borderRadius: 8,
+  },
+  horizontalCards: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingVertical: 4,
+    paddingRight: 10,
+    // ✨ 가로 스크롤 위해 추가로 넣어준 코드
+    flexWrap: 'nowrap',
+    alignItems: 'flex-start',
+  },
+  blogTitle: {
+    fontSize: 16, // 제목 크기 (조정 가능)
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
+  blogDesc: {
+    fontSize: 14, // 설명 크기 (조정 가능)
+    color: '#666',
+    lineHeight: 20, // 줄 간격 (옵션)
+  },
+
+  blogImage: {
+    width: 64, // 이미지 크기 설정
+    height: 64, // 이미지 크기 설정
+    borderRadius: 8, // 이미지 모서리 둥글게
+    backgroundColor: '#ccc', // 이미지 배경색
   },
 });
 
