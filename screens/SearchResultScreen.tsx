@@ -13,6 +13,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import SearchBar from '../components/mainpage/SearchBar';
 import FilterModal from '../components/FilterModal';
 import BrandFilterModal from '../components/BrandFilterModal';
+import {Image} from 'react-native';
 import {API_URL} from '@env';
 
 const {width} = Dimensions.get('window');
@@ -52,7 +53,7 @@ const SearchResultScreen = () => {
 
   // ✅ 필터 조건에 따라 결과 목록 정렬하는 함수
   const handleApplyFilter = async (filters: any) => {
-    let filtered = [...allSearchResults]; // 🔥 항상 전체 검색 결과 기준으로 필터링 시작
+    let filtered = [...allSearchResults]; //항상 전체 검색 결과 기준으로 필터링 시작
 
     // ✅ 1. 재료 키워드 필터링 (ex: '우유' 포함된 메뉴만 보기)
     if (filters.ingredientKeyword) {
@@ -178,14 +179,23 @@ const SearchResultScreen = () => {
                 shadowOpacity: 0.3,
                 shadowOffset: {width: 0, height: 1},
               }}>
-              <View
-                style={{
-                  width: 70,
-                  height: 70,
-                  backgroundColor: '#e0e0e0',
-                  borderRadius: 6,
-                }}
-              />
+              {/* ✅ 이미지 보여주기 */}
+              {menu.image ? (
+                <Image
+                  source={{uri: menu.image}}
+                  style={{width: 70, height: 70, borderRadius: 6}}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View
+                  style={{
+                    width: 70,
+                    height: 70,
+                    backgroundColor: '#e0e0e0',
+                    borderRadius: 6,
+                  }}
+                />
+              )}
               <View style={{flex: 1}}>
                 <Text style={{fontWeight: 'bold', fontSize: 16}}>
                   {menu.menuName}
