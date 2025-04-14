@@ -30,18 +30,20 @@ const BrandMenuListScreen = () => {
 
   // ✅ 컴포넌트 처음 실행시 브랜드 메뉴 받아오기
   useEffect(() => {
-    const fetchMenus = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/menu/brand?brandName=${encodeURIComponent(brandName)}`,
-        );
-        const data = await response.json();
-        setMenus(data); // ✅ 받아온 메뉴 저장
-      } catch (error) {
-        console.error('브랜드 메뉴 조회 오류:', error);
-      }
-    };
-    fetchMenus(); // ✅ 함수 실행
+    if (brandName) {
+      const fetchMenus = async () => {
+        try {
+          const response = await fetch(
+            `${API_URL}/menu/brand?brandName=${encodeURIComponent(brandName)}`,
+          );
+          const data = await response.json();
+          setMenus(data); // ✅ 받아온 메뉴 저장
+        } catch (error) {
+          console.error('브랜드 메뉴 조회 오류:', error);
+        }
+      };
+      fetchMenus(); // ✅ 함수 실행
+    }
   }, [brandName]); // ✅ 브랜드 이름이 바뀔 때마다 실행
 
   // ✅ 메뉴 하나 하나의 UI 정의
@@ -115,14 +117,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 110,
+    height: 110,
     borderRadius: 6,
-    marginBottom: 8,
+    marginBottom: 11,
     backgroundColor: '#ddd',
   },
   name: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: 'bold',
     textAlign: 'center',
   },

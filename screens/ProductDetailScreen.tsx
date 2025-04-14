@@ -19,8 +19,8 @@ type ProductRouteProp = RouteProp<RootStackParamList, 'Product'>;
 
 // ✅ 상품 상세 페이지
 const ProductDetailScreen = () => {
-  type Navigation = NativeStackNavigationProp<RootStackParamList>; // ✅ 추가
-  const navigation = useNavigation<Navigation>(); // ✅ 뒤로가기 네비기능
+  type Navigation = NativeStackNavigationProp<RootStackParamList>; // ✅ 네비 타입 지정
+  const navigation = useNavigation<Navigation>(); // ✅ 네비 타입 가져오기
   const route = useRoute<ProductRouteProp>();
   const {menuId} = route.params; // ✅ menuId 받아오기
 

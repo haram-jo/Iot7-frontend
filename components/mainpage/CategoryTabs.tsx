@@ -7,6 +7,10 @@ console.log('✅ 적용된 API_URL:', API_URL);
 import ListItem from './ListItem';
 import GlobalStyles from '../../styles/GlobalStyles';
 
+// 홈화면에서 카테고리 탭 보여주고
+// 선택한 카테고리에 해당하는 제품을
+// ListItem으로 화면에 뿌려주는 파일
+
 const {width, height} = Dimensions.get('window');
 
 interface CategoryTabsProps {
@@ -101,10 +105,10 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
           </TouchableRipple>
         ))}
       </ScrollView>
-      {/*선택된 카테고리 제품 목록*/}
+      {/* ✅받아온 메뉴 리스트를 화면에 카드처럼 보여주기 */}
       <View>
         {menus.length > 0 ? (
-          menus.map(menu => <ListItem key={menu.menuId} menu={menu} />)
+          menus.map(menu => <ListItem key={menu.menuId} menu={menu} />) // Listitem과 연결된 부분
         ) : (
           <Text style={GlobalStyles.text}>
             이 카테고리에는 제품이 없습니다.

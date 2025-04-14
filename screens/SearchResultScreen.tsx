@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import {useRoute, useNavigation, RouteProp} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/MainStack';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -20,11 +20,12 @@ const {width} = Dimensions.get('window');
 
 // ✅ 제품선택시 상세페이지로 넘어가는 함수
 const SearchResultScreen = () => {
-  const route = useRoute();
+  type SearchResultRouteProp = RouteProp<RootStackParamList, 'SearchResult'>;
+  // ✅ 타입 명시
+  const route = useRoute<SearchResultRouteProp>();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const initialResults = route.params?.results || []; //🔹이전 화면(HomeScreen)에서 받은 검색 결과
+  const initialResults = route.params.results; //🔹이전 화면(HomeScreen)에서 받은 검색 결과
   const [results, setResults] = useState(initialResults);
   const [modalVisible, setModalVisible] = useState(false); //🔹필터 모달 창 여닫기
   const [brandModalVisible, setBrandModalVisible] = useState(false); //🔹브랜드 모달 상태 추가
