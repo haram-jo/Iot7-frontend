@@ -10,7 +10,7 @@ import GlobalStyles from '../../styles/GlobalStyles';
 
 const {width, height} = Dimensions.get('window');
 
-//✅ props 타입 정의하기
+//✅ List는 menu props를 받음
 interface ListItemProps {
   menu: {
     menuId: number;
