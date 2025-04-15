@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  FlatList,
 } from 'react-native';
 import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/MainStack';
@@ -13,6 +14,11 @@ import {API_URL} from '@env';
 import {Ionicons} from '@expo/vector-icons';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {Dimensions} from 'react-native';
+
+const {width} = Dimensions.get('window');
+const ITEM_WIDTH = width * 0.4; // 블로그 리뷰 개수 조정
+const SPACING = 10;
 
 // ✅ 타입 지정
 type ProductRouteProp = RouteProp<RootStackParamList, 'Product'>;
@@ -107,7 +113,7 @@ const ProductDetailScreen = () => {
           </View>
         </View>
 
-        {/* ✅ 이 브랜드의 인기상품 (가로 스크롤 카드들) */}
+        {/* ✅ 이 브랜드의 인기상품 */}
         {/*가로 스크롤 horizontal 사용 */}
         <Text style={styles.sectionTitle}>이 브랜드의 인기상품</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -118,7 +124,7 @@ const ProductDetailScreen = () => {
           </View>
         </ScrollView>
 
-        {/* ✅ 다른 추천 메뉴 (가로 스크롤 카드들) */}
+        {/* ✅ 다른 추천 메뉴 */}
         {/*가로 스크롤 horizontal 사용 */}
         <Text style={styles.sectionTitle}>다른 추천 메뉴</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -129,21 +135,42 @@ const ProductDetailScreen = () => {
           </View>
         </ScrollView>
 
-        {/* ✅ 블로그 리뷰 섹션 (이미지 + 요약 텍스트) */}
+        {/* ✅ 다른 추천 메뉴 */}
         <Text style={styles.sectionTitle}>블로그 리뷰</Text>
-        <View style={styles.reviewBox}>
-          <Image
-            source={{uri: 'https://via.placeholder.com/64'}}
-            style={styles.blogImage}
+        {menuDetail.blogPosts && menuDetail.blogPosts.length > 0 ? (
+          <FlatList
+            data={menuDetail.blogPosts} // ✅ 블로그 데이터 배열 전달
+            horizontal // ✅ 수평 스크롤 설정
+            pagingEnabled // ✅ 딱딱 끊기게 넘겨지도록 설정
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={ITEM_WIDTH + SPACING} // ✅ 하나의 카드 + 여백만큼 딱 맞게 스냅
+            decelerationRate="fast"
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={{paddingHorizontal: 10}}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                onPress={() =>
+                  import('react-native').then(({Linking}) =>
+                    Linking.openURL(item.link),
+                  )
+                }
+                style={[
+                  styles.blogCard,
+                  {width: ITEM_WIDTH, marginRight: SPACING},
+                ]}>
+                <Text style={styles.blogTitle} numberOfLines={2}>
+                  {item.title}
+                </Text>
+                <Text style={styles.blogDesc} numberOfLines={1}>
+                  by {item.bloggerName}
+                </Text>
+                <Text style={styles.blogDate}>{item.postDate}</Text>
+              </TouchableOpacity>
+            )}
           />
-          <View style={{flex: 1, marginLeft: 12}}>
-            <Text style={styles.blogTitle}>CU 신상후기</Text>
-            <Text style={styles.blogDesc} numberOfLines={1}>
-              안녕하세요 오늘은 씨유에 신상이 나왔다고 합..
-            </Text>
-          </View>
-        </View>
-
+        ) : (
+          <Text style={{color: '#999'}}>블로그 리뷰가 없습니다.</Text>
+        )}
         {/* ✅ 유튜브 리뷰 섹션 (가로 스크롤 카드) */}
         {/*가로 스크롤 horizontal 사용 */}
         <Text style={styles.sectionTitle}>유튜브 리뷰</Text>
@@ -282,7 +309,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 4,
     paddingRight: 10,
-    // ✨ 가로 스크롤 위해 추가로 넣어준 코드
+    // 가로 스크롤 위해 추가로 넣어준 코드
     flexWrap: 'nowrap',
     alignItems: 'flex-start',
   },
@@ -303,6 +330,22 @@ const styles = StyleSheet.create({
     height: 64, // 이미지 크기 설정
     borderRadius: 8, // 이미지 모서리 둥글게
     backgroundColor: '#ccc', // 이미지 배경색
+  },
+  blogCard: {
+    width: width * 0.4,
+    backgroundColor: '#F5EBFF',
+    borderRadius: 10,
+    padding: 12,
+    marginRight: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  blogDate: {
+    fontSize: 12,
+    color: '#aaa',
+    marginTop: 4,
   },
 });
 
