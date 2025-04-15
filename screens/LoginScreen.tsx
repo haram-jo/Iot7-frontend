@@ -11,6 +11,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {signInWithEmailAndPassword} from 'firebase/auth';
+import {signInWithEmail} from '../services/auth';
 import {auth} from '../services/firebaseConfig'; // 🔧 Firebase 설정
 import {API_URL} from '@env';
 import {RootStackParamList} from '../navigation/MainStack';
@@ -33,33 +34,16 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     console.log('🔐 로그인 버튼 눌림');
-    setIsLoading(true); //✅ 로딩 시작
+    setIsLoading(true);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      ); // ✅ 파이어베이스 로그인 시도
-      const user = userCredential.user;
-      const token = await user.getIdToken();
+      const result = await signInWithEmail(email, password); // ✅ auth.ts 함수 사용
 
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({token}), // ✅ 토큰을 백엔드에 전달
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error('서버 응답 실패');
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
-      const data = await response.json();
-
-      await login(data); // ✅ 로그인 상태 저장
+      await login(result.user); // ✅ Context에 로그인 정보 저장
       navigation.navigate('BottomNav');
     } catch (error: any) {
       console.error('로그인 실패:', error);
@@ -68,7 +52,7 @@ const LoginScreen = () => {
         error.message || '이메일 또는 비밀번호를 확인해주세요.',
       );
     } finally {
-      setIsLoading(false); // ✅ 로딩 끝
+      setIsLoading(false);
     }
   };
 

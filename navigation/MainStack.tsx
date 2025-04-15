@@ -26,6 +26,7 @@ export type RootStackParamList = {
   BrandMenuList: {brandName: string}; //brandmenuList page는 string받겠다 명시
   SearchResult: {results: any[]};
   //SearchResult: {results: any};
+
   //캘린더 수정중
   Calendar: undefined;
 };
@@ -46,6 +47,7 @@ const MainStack = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="BottomNav" component={BottomNav} />
+        <Stack.Screen name="Calendar" component={CalendarScreen} />
         <Stack.Screen name="Product" component={ProductDetailScreen} />
         <Stack.Screen name="SearchResult" component={SearchResultScreen} />
         <Stack.Screen name="BrandMenuList" component={BrandMenuListScreen} />

@@ -61,7 +61,7 @@ const SignupScreen = () => {
         })
         .then(data => {
           Alert.alert('회원가입 완료! 환영합니다!');
-          navigation.navigate('BottomNav');
+          navigation.navigate('Login');
         })
         .catch(error => {
           Alert.alert('회원가입 실패', error.message);

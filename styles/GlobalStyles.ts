@@ -25,15 +25,17 @@ const GlobalStyles = StyleSheet.create({
   },
   button_dark: {
     marginTop: 10,
-    backgroundColor: '#FFC0CB',
+    backgroundColor: '#dcceed',
     padding: 10,
     borderRadius: 5,
+    alignItems: 'center',
   },
   button_light: {
     marginTop: 10,
-    backgroundColor: '#FFC0CB',
+    backgroundColor: '#eacef0',
     padding: 10,
     borderRadius: 5,
+    alignItems: 'center',
   },
   imageContainer: {
     alignItems: 'center',
@@ -151,7 +153,7 @@ const GlobalStyles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
   modalContent: {
     backgroundColor: '#F5EFFF',
@@ -186,8 +188,13 @@ const GlobalStyles = StyleSheet.create({
     textAlign: 'center',
     color: '#000',
   },
-  buttonText: {
+  buttonText_light: {
     color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  buttonText_dark: {
+    color: 'purple',
     fontWeight: 'bold',
     fontSize: 16,
   },

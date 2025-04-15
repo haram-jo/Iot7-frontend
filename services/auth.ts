@@ -32,7 +32,10 @@ export const signUpWithEmail = async (
 
     // 회원가입 후 자동 로그인 처리 (토큰 저장)
     await AsyncStorage.setItem('userToken', token);
+    console.log('✅ 토큰 저장 완료:', token);
+
     await AsyncStorage.setItem('userData', JSON.stringify(data));
+    console.log('✅ 유저 정보 저장 완료:', data);
 
     return {success: true, user: data};
   } catch (error: any) {
@@ -50,11 +53,12 @@ export const signInWithEmail = async (email: string, password: string) => {
     const {user} = await signInWithEmailAndPassword(auth, email, password);
     const token = await user.getIdToken();
 
-    const {data} = await axios.post(`${API_URL}/login`, {token});
+    const {data} = await axios.post(`${API_URL}/api/auth/login`, {token});
 
     await AsyncStorage.setItem('userToken', token);
+    console.log('✅ 토큰 저장 완료:', token);
     await AsyncStorage.setItem('userData', JSON.stringify(data));
-
+    console.log('✅ 유저 정보 저장 완료:', data);
     return {success: true, user: data};
   } catch (error: any) {
     console.error('로그인 실패:', error);

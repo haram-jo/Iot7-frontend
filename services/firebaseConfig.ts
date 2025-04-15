@@ -1,5 +1,6 @@
 import {initializeApp} from 'firebase/app';
-import {getAuth} from 'firebase/auth';
+import {initializeAuth, getReactNativePersistence} from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 🔹 Firebase 설정값
 const firebaseConfig = {
@@ -14,5 +15,9 @@ const firebaseConfig = {
 // Firebase 앱 초기화
 const app = initializeApp(firebaseConfig);
 
-// Firebase 인증 인스턴스 내보내기
-export const auth = getAuth(app);
+// ✅ React Native 환경에서 Auth + AsyncStorage 연동
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
+
+export {app, auth};

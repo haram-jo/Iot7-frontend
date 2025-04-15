@@ -17,17 +17,17 @@ import type {RootStackParamList} from '../../navigation/MainStack';
 {
   /* 날짜 칸 클릭 모델 */
 }
-const CalendarDayModal = ({visible, date, event, onClose}) => {
+const CalendarDayModal = ({visible, date, event, onClose, onItemSelect}) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  // 뒤로가기 버튼튼
+  // 뒤로가기 버튼
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
         if (visible) {
-          onClose(); //뒤로 가기누르면 닫힘힘
+          onClose(); //뒤로 가기누르면 닫힘
           return true;
         }
         return false;
@@ -41,14 +41,15 @@ const CalendarDayModal = ({visible, date, event, onClose}) => {
       style={GlobalStyles.modalContainer}
       visible={visible}
       transparent
-      animationType="slide">
+      // animationType="slide"
+    >
       {/* 바깥 터치 감지 */}
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={GlobalStyles.modalOverlay}>
           {/* 내부 터치 막음 */}
           <TouchableWithoutFeedback onPress={() => {}}>
             <View style={GlobalStyles.modalContent}>
-              {/* 날짜 제목 표시시 */}
+              {/* 날짜 제목 표시 */}
               <Text style={GlobalStyles.modalTitle}>
                 {' '}
                 {date && dayjs(date).format('YYYY-MM-DD')}
@@ -59,8 +60,11 @@ const CalendarDayModal = ({visible, date, event, onClose}) => {
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item}) => (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('Product', {item})}
-                    activeOpacity={0.8}>
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      onClose();
+                      onItemSelect(item);
+                    }}>
                     <View style={GlobalStyles.scheduleRow}>
                       {/* 왼쪽브랜드 */}
                       <View style={{width: 80}}>

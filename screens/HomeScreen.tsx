@@ -55,7 +55,7 @@ const HomeScreen = () => {
         `${API_URL}/menu/search?keyword=${encodeURIComponent(keyword)}`,
       );
       const data = await response.json();
-      console.log('받아온 메뉴 데이터:', data);
+      // console.log('받아온 메뉴 데이터:', data);
       //@ts-ignore
       navigation.navigate('SearchResult', {results: data}); // ✅ 검색결과 페이지로 이동
     } catch (error) {

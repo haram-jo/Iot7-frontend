@@ -12,16 +12,29 @@ import CalendarItem from '../components/calendar/CalendarItem';
 
 const {height} = Dimensions.get('window');
 
+interface EventType {
+  menuId: number;
+  title: string;
+  start: Date;
+  end: Date;
+  category: string;
+  color: string;
+  description: string;
+  price: number;
+  brand: string;
+  image?: string;
+}
+
 const CalendarScreen = () => {
   const today = new Date();
 
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<EventType[]>([]);
   const [currentDate, setCurrentDate] = useState(today);
   const [currentYear, setCurrentYear] = useState(dayjs(today).year());
   const [currentMonth, setCurrentMonth] = useState(dayjs(today).month());
   const [isMonthPickerVisible, setIsMonthPickerVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
 
   const updateCurrentDate = (newDate: Date) => {
     setCurrentDate(newDate);
@@ -39,6 +52,7 @@ const CalendarScreen = () => {
         const data = await response.json();
         // console.log('Received response:', data);
         const mappedEvents = data.map(item => ({
+          menuId: item.menuId,
           title: item.menuName,
           start: new Date(
             `${dayjs(item.regDate).format('YYYY-MM-DD')}T10:00:00`,
@@ -49,6 +63,7 @@ const CalendarScreen = () => {
           description: item.description,
           price: item.price,
           brand: item.brand,
+          image: item.imageUrl,
         }));
         // console.log('Mapped events:', mappedEvents);
         setEvents(mappedEvents);
@@ -89,9 +104,10 @@ const CalendarScreen = () => {
           setSelectedDate(date);
           setSelectedEvent(null);
         }}
-        onPressEvent={event => {
-          setSelectedEvent(event);
-          setSelectedDate(null);
+        onPressEvent={(event: EventType) => {
+          setSelectedDate(event.start);
+          setSelectedEvent(null);
+          // setSelectedDate(null);
         }}
         eventCellStyle={event => ({
           backgroundColor: event.color || '#9E9E9E',
@@ -126,8 +142,11 @@ const CalendarScreen = () => {
         date={selectedDate}
         event={filteredEvents}
         onClose={() => setSelectedDate(null)}
+        onItemSelect={item => {
+          setSelectedEvent(item);
+          setSelectedDate(null);
+        }}
       />
-
       <CalendarItemModel
         visible={!!selectedEvent}
         item={selectedEvent}
