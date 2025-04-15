@@ -29,15 +29,27 @@ const SignupScreen = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const signup = async () => {
+    // ✅ 음식 중복 검사 하는 코드
+    const preferredList = preferredFood.split(',').map(item => item.trim());
+    const allergicList = allergicFood.split(',').map(item => item.trim());
+    const duplicates = preferredList.filter(item =>
+      allergicList.includes(item),
+    );
+
+    if (duplicates.length > 0) {
+      Alert.alert('동일한 음식을 두 칸에 입력할 수 없어요!');
+      return;
+    }
+
     try {
-      // Firebase에서 이메일 & 비밀번호로 인증(회원가입)
+      // ✅ Firebase에서 이메일 & 비밀번호로 인증(회원가입)
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password,
       );
 
-      // DB에 사용자 정보 저장
+      // ✅ DB에 사용자 정보 저장
       await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
@@ -113,7 +125,7 @@ const SignupScreen = () => {
           autoCorrect={false}
           value={email}
           onChangeText={text => {
-            setEmail(text.toLowerCase());
+            setEmail(text.trim().toLowerCase());
           }}
         />
         <TextInput
