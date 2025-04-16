@@ -141,7 +141,7 @@ const ProductDetailScreen = () => {
           <FlatList
             data={menuDetail.blogPosts} // ✅ 블로그 데이터 배열 전달
             horizontal // ✅ 수평 스크롤 설정
-            pagingEnabled // ✅ 딱딱 끊기게 넘겨지도록 설정
+            pagingEnabled // ✅ 페이지처럼 넘기게 해주는 핵심
             showsHorizontalScrollIndicator={false}
             snapToInterval={ITEM_WIDTH + SPACING} // ✅ 하나의 카드 + 여백만큼 딱 맞게 스냅
             decelerationRate="fast"

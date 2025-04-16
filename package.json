@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "lint": "eslint .",
-     "update-env": "node update-env-ip.js",
+    "update-env": "node update-env-ip.js",
     "start": "npm run update-env && npx expo start -c",
     "test": "jest"
   },
@@ -15,7 +15,6 @@
     "@expo/metro-runtime": "~4.0.1",
     "@gorhom/bottom-sheet": "^5.1.2",
     "@react-native-async-storage/async-storage": "^1.24.0",
-    "@react-native-google-signin/google-signin": "^13.2.0",
     "@react-navigation/bottom-tabs": "^7.2.1",
     "@react-navigation/material-top-tabs": "^7.1.1",
     "@react-navigation/native": "^7.0.19",
