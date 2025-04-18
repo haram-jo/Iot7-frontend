@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, Dimensions, TouchableOpacity, Image} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import type {RootStackParamList} from '../../types/navigation';
@@ -13,6 +13,8 @@ const {width, height} = Dimensions.get('window');
 //✅ List는 menu props를 받음
 interface ListItemProps {
   menu: {
+    rating: number;
+    description: any;
     menuId: number;
     menuName: string;
     price: number;
@@ -25,6 +27,21 @@ const ListItem: React.FC<ListItemProps> = ({menu}) => {
   // ✅ navigation 객체 생성
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList, 'Product'>>();
+
+  const [isLiked, setIsLiked] = React.useState(false);
+  //  좋아요 요청 보내는 API로 확장 시
+  // const toggleLike = async () => {
+  //   const next = !isLiked;
+  //   setIsLiked(next);
+  //   try {
+  //     await axios.post(`${API_URL}/menu/${menu.menuId}/like`, {
+  //       liked: next,
+  //     });
+  //   } catch (err) {
+  //     console.error('좋아요 토글 실패', err);
+  //     setIsLiked(!next); // 실패 시 롤백
+  //   }
+  // };
 
   return (
     <View style={GlobalStyles.card}>
@@ -55,31 +72,42 @@ const ListItem: React.FC<ListItemProps> = ({menu}) => {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'space-between',
+              width: '87%',
             }}>
-            {/* ✅ 메뉴 이름 표시 */}
-            <Text style={GlobalStyles.name}>
+            {/* 왼쪽: 메뉴 이름 */}
+            <Text
+              style={GlobalStyles.name}
+              numberOfLines={1}
+              ellipsizeMode="tail">
               {menu ? `${menu.menuName}` : '메뉴없음'}{' '}
             </Text>
-            {/* ✅ 별점 아이콘 (현재는 고정된 별 5개) */}
-            <View style={GlobalStyles.rating}>
+            {/* 오른쪽: 별점 + 하트 */}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                flexShrink: 0, // 오른쪽 아이콘 줄어들지 않게
+                marginLeft: 10,
+              }}>
               {[...Array(5)].map((_, rating = 3) => (
                 <Icon
                   key={rating}
-                  name="star"
-                  size={width * 0.04}
+                  name={rating < (menu?.rating ?? 0) ? 'star' : 'star-o'}
+                  size={width * 0.038}
                   color="gold"
+                  style={{marginLeft: 0}}
                 />
               ))}
+              <TouchableOpacity onPress={() => setIsLiked(prev => !prev)}>
+                <Icon
+                  name={isLiked ? 'heart' : 'heart-o'}
+                  size={width * 0.05}
+                  color={isLiked ? 'red' : '#777'}
+                  style={{marginLeft: width * 0.015}}
+                />
+              </TouchableOpacity>
             </View>
-            {/* ✅ 좋아요(찜) 아이콘 - 현재는 동작 없음 */}
-            <TouchableOpacity>
-              <Icon
-                name="heart-o"
-                size={width * 0.06}
-                color="#777"
-                style={{marginLeft: width * 0.02}}
-              />
-            </TouchableOpacity>
           </View>
           {/* ✅ 가격 표시 */}
           <Text style={GlobalStyles.price}>
@@ -93,7 +121,7 @@ const ListItem: React.FC<ListItemProps> = ({menu}) => {
               alignItems: 'center',
             }}>
             <Text style={GlobalStyles.text}>
-              Supporting line text lorem ipsum...
+              {menu ? `${menu.description}` : '설명 없음'}
             </Text>
           </View>
         </View>

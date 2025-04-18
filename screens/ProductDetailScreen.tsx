@@ -135,13 +135,13 @@ const ProductDetailScreen = () => {
           </View>
         </ScrollView>
 
-        {/* ✅ 다른 추천 메뉴 */}
+        {/* ✅ 블로그존 ✅ */}
         <Text style={styles.sectionTitle}>블로그 리뷰</Text>
         {menuDetail.blogPosts && menuDetail.blogPosts.length > 0 ? (
           <FlatList
             data={menuDetail.blogPosts} // ✅ 블로그 데이터 배열 전달
-            horizontal // ✅ 수평 스크롤 설정
-            pagingEnabled // ✅ 페이지처럼 넘기게 해주는 핵심
+            horizontal // ✅ 가로 스크롤 설정
+            pagingEnabled // ✅ 딱딱 끊기게 넘겨지도록 설정
             showsHorizontalScrollIndicator={false}
             snapToInterval={ITEM_WIDTH + SPACING} // ✅ 하나의 카드 + 여백만큼 딱 맞게 스냅
             decelerationRate="fast"
@@ -171,16 +171,46 @@ const ProductDetailScreen = () => {
         ) : (
           <Text style={{color: '#999'}}>블로그 리뷰가 없습니다.</Text>
         )}
-        {/* ✅ 유튜브 리뷰 섹션 (가로 스크롤 카드) */}
-        {/*가로 스크롤 horizontal 사용 */}
+        {/* ✅ 유튜브존 ✅ */}
         <Text style={styles.sectionTitle}>유튜브 리뷰</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.horizontalCards}>
-            {[...Array(6)].map((_, idx) => (
-              <View key={idx} style={styles.card} />
-            ))}
-          </View>
-        </ScrollView>
+        {menuDetail.youtubeVideos && menuDetail.youtubeVideos.length > 0 ? (
+          <FlatList // 세로+가로 모두 지원하는 컴포넌트트
+            data={menuDetail.youtubeVideos}
+            horizontal // 가로 스크롤 설정
+            pagingEnabled //한 개씩 끊어서 넘기기
+            snapToInterval={width * 0.6 + 11} //카드 너비 + 마진
+            decelerationRate="fast" // 빠르게 멈춤
+            keyExtractor={(item, index) => index.toString()}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingHorizontal: 10}}
+            // ✅ 데이터를 하나씩 꺼내줌
+            renderItem={({item}) => (
+              // ✅ TouchableOpacity 시작
+              <TouchableOpacity
+                style={styles.youtubeCard}
+                onPress={() =>
+                  import('react-native').then(({Linking}) =>
+                    Linking.openURL(
+                      `https://www.youtube.com/watch?v=${item.videoId}`,
+                    ),
+                  )
+                }>
+                {/* 썸네일 이미지 */}
+                <Image
+                  source={{uri: item.thumbnailUrl}}
+                  style={styles.youtubeThumbnail}
+                />
+
+                {/* 영상 제목 */}
+                <Text numberOfLines={2} style={styles.youtubeTitle}>
+                  {item.title}
+                </Text>
+              </TouchableOpacity> // ✅ TouchableOpacity 끝
+            )}
+          />
+        ) : (
+          <Text style={{color: '#999'}}>유튜브 리뷰가 없습니다.</Text>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -346,6 +376,31 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#aaa',
     marginTop: 4,
+  },
+  youtubeCard: {
+    width: width * 0.6,
+    marginRight: 12,
+    backgroundColor: '#FFFCF3',
+    borderRadius: 10,
+    padding: 10,
+    elevation: 2,
+  },
+  youtubeThumbnail: {
+    width: '100%',
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 6,
+  },
+  youtubeTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#333',
+  },
+  youtubeLink: {
+    fontSize: 12,
+    color: '#007aff',
+    textAlign: 'right',
   },
 });
 

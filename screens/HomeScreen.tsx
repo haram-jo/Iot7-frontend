@@ -1,4 +1,4 @@
-import React, {useState, useLayoutEffect, useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   ScrollView,
   View,
@@ -15,7 +15,6 @@ import {API_URL} from '@env';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types/navigation';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AuthContext} from '../contexts/AuthContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -64,7 +63,9 @@ const HomeScreen = () => {
   };
 
   return (
-    <ScrollView style={GlobalStyles.container}>
+    // <ScrollView style={GlobalStyles.container}>
+
+    <View style={GlobalStyles.container}>
       {/* ✅ 로그인/로그아웃 버튼 - 검색창 위 오른쪽 정렬 */}
       <View
         style={{
@@ -95,7 +96,8 @@ const HomeScreen = () => {
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
       />
-    </ScrollView>
+    </View>
+    // </ScrollView>
   );
 };
 

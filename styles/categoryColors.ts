@@ -5,23 +5,23 @@ type CategoryColor = {
 
 export const categoryColors: Record<string, CategoryColor> = {
   카페: {
-    backgroundColor: '#FF6F61',
-    textColor: 'white',
+    backgroundColor: '#db5f4f',
+    textColor: '#ffd3cf',
   },
   편의점: {
-    backgroundColor: '#FF6F61',
-    textColor: 'white',
+    backgroundColor: '#6190ff',
+    textColor: '#000000',
   },
   한식: {
-    backgroundColor: '#FF6F61',
-    textColor: 'white',
+    backgroundColor: '#4fa64b',
+    textColor: '#c2ffbf',
   },
   버거: {
-    backgroundColor: '#FF6F61',
+    backgroundColor: '#7b61ff',
     textColor: 'white',
   },
   휴일: {
-    backgroundColor: '#00ff0000',
+    backgroundColor: '#00ff0000', //투명색색
     textColor: 'red',
   },
   기본: {

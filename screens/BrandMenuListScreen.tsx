@@ -30,6 +30,9 @@ const BrandMenuListScreen = () => {
 
   // ✅ 컴포넌트 처음 실행시 브랜드 메뉴 받아오기
   useEffect(() => {
+    console.log('🧾 요청 브랜드명:', brandName);
+    console.log('📦 브랜드 메뉴 데이터: ', menus);
+
     if (brandName) {
       const fetchMenus = async () => {
         try {
@@ -82,7 +85,9 @@ const BrandMenuListScreen = () => {
         // ✅ 메뉴가 있을 때 2열로 FlatList로 렌더링
         <FlatList
           data={menus}
-          keyExtractor={item => item.menuId.toString()}
+          keyExtractor={(item, index) =>
+            (item?.menuId ?? `item-${index}`).toString()
+          }
           renderItem={renderItem}
           numColumns={2}
           contentContainerStyle={styles.list}

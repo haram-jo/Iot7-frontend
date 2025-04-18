@@ -14,6 +14,7 @@ const {height} = Dimensions.get('window');
 
 interface EventType {
   menuId: number;
+  menuName: string;
   title: string;
   start: Date;
   end: Date;
@@ -22,7 +23,8 @@ interface EventType {
   description: string;
   price: number;
   brand: string;
-  image?: string;
+  imageUrl: string;
+  rating: number;
 }
 
 const CalendarScreen = () => {
@@ -51,19 +53,21 @@ const CalendarScreen = () => {
         const response = await fetch(`${API_URL}/calendar/menus`);
         const data = await response.json();
         // console.log('Received response:', data);
-        const mappedEvents = data.map(item => ({
-          menuId: item.menuId,
-          title: item.menuName,
+        const mappedEvents = data.map(menu => ({
+          menuId: menu.menuId,
+          menuName: menu.menuName,
+          title: menu.menuName,
           start: new Date(
-            `${dayjs(item.regDate).format('YYYY-MM-DD')}T10:00:00`,
+            `${dayjs(menu.regDate).format('YYYY-MM-DD')}T10:00:00`,
           ),
-          end: new Date(`${dayjs(item.regDate).format('YYYY-MM-DD')}T11:00:00`),
-          category: item.category,
-          color: categoryColors[item.category]?.backgroundColor || '#9E9E9E',
-          description: item.description,
-          price: item.price,
-          brand: item.brand,
-          image: item.imageUrl,
+          end: new Date(`${dayjs(menu.regDate).format('YYYY-MM-DD')}T11:00:00`),
+          category: menu.category,
+          color: categoryColors[menu.category]?.backgroundColor || '#9E9E9E',
+          description: menu.description,
+          price: menu.price,
+          brand: menu.brand,
+          imageUrl: menu.imageUrl,
+          rating: menu.rating ?? 0,
         }));
         // console.log('Mapped events:', mappedEvents);
         setEvents(mappedEvents);
@@ -142,14 +146,14 @@ const CalendarScreen = () => {
         date={selectedDate}
         event={filteredEvents}
         onClose={() => setSelectedDate(null)}
-        onItemSelect={item => {
-          setSelectedEvent(item);
+        onItemSelect={menu => {
+          setSelectedEvent(menu);
           setSelectedDate(null);
         }}
       />
       <CalendarItemModel
         visible={!!selectedEvent}
-        item={selectedEvent}
+        menu={selectedEvent}
         onClose={() => setSelectedEvent(null)}
       />
     </View>

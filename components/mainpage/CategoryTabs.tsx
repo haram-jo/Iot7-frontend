@@ -24,7 +24,14 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
 }) => {
   const [categories, setCategories] = useState<string[]>([]);
   const [menus, setMenus] = useState<
-    {menuId: number; menuName: string; price: number}[]
+    {
+      menuId: number;
+      menuName: string;
+      price: number;
+      imageUrl: string;
+      description: string;
+      rating: number;
+    }[]
   >([]);
 
   //백엔드에서 카테고리 정보(목록) 가져옴
@@ -105,8 +112,8 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
           </TouchableRipple>
         ))}
       </ScrollView>
-      {/* ✅받아온 메뉴 리스트를 화면에 카드처럼 보여주기 */}
-      <View>
+      {/*선택된 카테고리 제품 목록*/}
+      <View style={[GlobalStyles.sectionContainer, {height: height * 0.1}]}>
         {menus.length > 0 ? (
           menus.map(menu => <ListItem key={menu.menuId} menu={menu} />) // Listitem과 연결된 부분
         ) : (

@@ -21,7 +21,7 @@ const CalendarDayModal = ({visible, date, event, onClose, onItemSelect}) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  // 뒤로가기 버튼
+  // 뒤로가기 버튼(현재 무쓸모모)
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -85,7 +85,7 @@ const CalendarDayModal = ({visible, date, event, onClose, onItemSelect}) => {
                             GlobalStyles.titleText,
                             {fontSize: 15, fontWeight: 'bold'},
                           ]}>
-                          {item.title}
+                          {item.menuName || item.title}
                         </Text>
                         <Text
                           style={[
