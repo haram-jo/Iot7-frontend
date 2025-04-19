@@ -15,6 +15,7 @@ import {Ionicons} from '@expo/vector-icons';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Dimensions} from 'react-native';
+import {Linking} from 'react-native';
 
 const {width} = Dimensions.get('window');
 const ITEM_WIDTH = width * 0.4; // 블로그 리뷰 개수 조정
@@ -149,11 +150,7 @@ const ProductDetailScreen = () => {
             contentContainerStyle={{paddingHorizontal: 10}}
             renderItem={({item}) => (
               <TouchableOpacity
-                onPress={() =>
-                  import('react-native').then(({Linking}) =>
-                    Linking.openURL(item.link),
-                  )
-                }
+                onPress={() => Linking.openURL(item.link)} // ✅ 수정
                 style={[
                   styles.blogCard,
                   {width: ITEM_WIDTH, marginRight: SPACING},
@@ -189,10 +186,8 @@ const ProductDetailScreen = () => {
               <TouchableOpacity
                 style={styles.youtubeCard}
                 onPress={() =>
-                  import('react-native').then(({Linking}) =>
-                    Linking.openURL(
-                      `https://www.youtube.com/watch?v=${item.videoId}`,
-                    ),
+                  Linking.openURL(
+                    `https://www.youtube.com/watch?v=${item.videoId}`,
                   )
                 }>
                 {/* 썸네일 이미지 */}
