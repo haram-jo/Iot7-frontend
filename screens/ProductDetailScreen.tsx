@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,10 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Dimensions} from 'react-native';
 import {Linking} from 'react-native';
+import MapView, {Marker} from 'react-native-maps';
+import * as Location from 'expo-location';
 
+// ✅ 변하지않는 const값은 밖에 적어줌
 const {width} = Dimensions.get('window');
 const ITEM_WIDTH = width * 0.4; // 블로그 리뷰 개수 조정
 const SPACING = 10;
@@ -30,6 +33,9 @@ const ProductDetailScreen = () => {
   const navigation = useNavigation<Navigation>(); // ✅ 네비 타입 가져오기
   const route = useRoute<ProductRouteProp>();
   const {menuId} = route.params; // ✅ menuId 받아오기
+  const [nearestStores, setNearestStores] = useState([]); // ✅ 가까운 매장
+  const [userLocation, setUserLocation] = useState(null); // ✅ 내 위치
+  const mapRef = useRef(null); // ✅ 지도 ref 만들기
 
   const [menuDetail, setMenuDetail] = useState<any>(null); // ✅ 상품 정보 저장 state
   const [isLiked, setIsLiked] = useState(false); // ✅ 찜하기 상태 저장 (하트 눌렀는지)
@@ -47,6 +53,40 @@ const ProductDetailScreen = () => {
     };
     fetchMenuDetail();
   }, [menuId]);
+
+  // ✅ 현재 내 위치 + 가까운 매장 API 요청
+  useEffect(() => {
+    const fetchNearestStores = async () => {
+      try {
+        // 1. 위치 권한 요청
+        const {status} = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn('위치 권한이 거부되었습니다');
+          return;
+        }
+
+        // 2. 현재 위치 가져오기
+        const location = await Location.getCurrentPositionAsync({});
+        const {latitude, longitude} = location.coords;
+        setUserLocation({latitude, longitude});
+
+        // 3. 가까운 매장 API 요청
+        const response = await fetch(
+          `${API_URL}/pos/nearest?brandName=${encodeURIComponent(
+            menuDetail.businessName,
+          )}&userLat=${latitude}&userLng=${longitude}`,
+        );
+        const data = await response.json();
+        setNearestStores(data); // ✅ 가까운 매장 목록 저장
+      } catch (error) {
+        console.error('가까운 매장 조회 오류:', error);
+      }
+    };
+
+    if (menuDetail?.businessName) {
+      fetchNearestStores();
+    }
+  }, [menuDetail]);
 
   if (!menuDetail) return <Text style={styles.loading}>로딩중...</Text>;
 
@@ -115,7 +155,6 @@ const ProductDetailScreen = () => {
         </View>
 
         {/* ✅ 이 브랜드의 인기상품 */}
-        {/*가로 스크롤 horizontal 사용 */}
         <Text style={styles.sectionTitle}>이 브랜드의 인기상품</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.horizontalCards}>
@@ -126,7 +165,6 @@ const ProductDetailScreen = () => {
         </ScrollView>
 
         {/* ✅ 다른 추천 메뉴 */}
-        {/*가로 스크롤 horizontal 사용 */}
         <Text style={styles.sectionTitle}>다른 추천 메뉴</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.horizontalCards}>
@@ -140,17 +178,17 @@ const ProductDetailScreen = () => {
         <Text style={styles.sectionTitle}>블로그 리뷰</Text>
         {menuDetail.blogPosts && menuDetail.blogPosts.length > 0 ? (
           <FlatList
-            data={menuDetail.blogPosts} // ✅ 블로그 데이터 배열 전달
-            horizontal // ✅ 가로 스크롤 설정
-            pagingEnabled // ✅ 딱딱 끊기게 넘겨지도록 설정
+            data={menuDetail.blogPosts}
+            horizontal
+            pagingEnabled
             showsHorizontalScrollIndicator={false}
-            snapToInterval={ITEM_WIDTH + SPACING} // ✅ 하나의 카드 + 여백만큼 딱 맞게 스냅
+            snapToInterval={ITEM_WIDTH + SPACING}
             decelerationRate="fast"
             keyExtractor={(item, index) => index.toString()}
             contentContainerStyle={{paddingHorizontal: 10}}
             renderItem={({item}) => (
               <TouchableOpacity
-                onPress={() => Linking.openURL(item.link)} // ✅ 수정
+                onPress={() => Linking.openURL(item.link)}
                 style={[
                   styles.blogCard,
                   {width: ITEM_WIDTH, marginRight: SPACING},
@@ -168,21 +206,20 @@ const ProductDetailScreen = () => {
         ) : (
           <Text style={{color: '#999'}}>블로그 리뷰가 없습니다.</Text>
         )}
+
         {/* ✅ 유튜브존 ✅ */}
         <Text style={styles.sectionTitle}>유튜브 리뷰</Text>
         {menuDetail.youtubeVideos && menuDetail.youtubeVideos.length > 0 ? (
-          <FlatList // 세로+가로 모두 지원하는 컴포넌트트
+          <FlatList
             data={menuDetail.youtubeVideos}
-            horizontal // 가로 스크롤 설정
-            pagingEnabled //한 개씩 끊어서 넘기기
-            snapToInterval={width * 0.6 + 11} //카드 너비 + 마진
-            decelerationRate="fast" // 빠르게 멈춤
+            horizontal
+            pagingEnabled
+            snapToInterval={width * 0.6 + 11}
+            decelerationRate="fast"
             keyExtractor={(item, index) => index.toString()}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{paddingHorizontal: 10}}
-            // ✅ 데이터를 하나씩 꺼내줌
             renderItem={({item}) => (
-              // ✅ TouchableOpacity 시작
               <TouchableOpacity
                 style={styles.youtubeCard}
                 onPress={() =>
@@ -190,21 +227,87 @@ const ProductDetailScreen = () => {
                     `https://www.youtube.com/watch?v=${item.videoId}`,
                   )
                 }>
-                {/* 썸네일 이미지 */}
                 <Image
                   source={{uri: item.thumbnailUrl}}
                   style={styles.youtubeThumbnail}
                 />
-
-                {/* 영상 제목 */}
                 <Text numberOfLines={2} style={styles.youtubeTitle}>
                   {item.title}
                 </Text>
-              </TouchableOpacity> // ✅ TouchableOpacity 끝
+              </TouchableOpacity>
             )}
           />
         ) : (
           <Text style={{color: '#999'}}>유튜브 리뷰가 없습니다.</Text>
+        )}
+
+        {/* ✅ 가까운 매장 지도 표시 */}
+        <Text style={styles.sectionTitle}>가까운 매장 위치</Text>
+        {userLocation && nearestStores.length > 0 ? (
+          <View>
+            <MapView
+              ref={mapRef}
+              style={{
+                width: '100%',
+                height: 300,
+                marginTop: 10,
+                borderRadius: 10,
+              }}
+              initialRegion={{
+                latitude: userLocation.latitude,
+                longitude: userLocation.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}>
+              <Marker
+                coordinate={userLocation}
+                title="내 위치"
+                pinColor="blue"
+              />
+              {nearestStores.map((store, idx) => (
+                <Marker
+                  key={idx}
+                  coordinate={{
+                    latitude: store.latitude,
+                    longitude: store.longitude,
+                  }}
+                  title={`${store.businessName} ${store.location}`}
+                  description="가까운 매장"
+                />
+              ))}
+            </MapView>
+
+            {/* ✅ 내 위치로 되돌아가는 버튼 */}
+            <TouchableOpacity
+              onPress={() => {
+                if (mapRef.current && userLocation) {
+                  mapRef.current.animateToRegion(
+                    {
+                      latitude: userLocation.latitude,
+                      longitude: userLocation.longitude,
+                      latitudeDelta: 0.01,
+                      longitudeDelta: 0.01,
+                    },
+                    1000,
+                  );
+                }
+              }}
+              style={{
+                position: 'absolute',
+                bottom: 10,
+                right: 10,
+                backgroundColor: 'white',
+                borderRadius: 30,
+                padding: 8,
+                elevation: 5,
+              }}>
+              <Ionicons name="locate" size={36} color="#007aff" />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text style={{color: '#999'}}>
+            가까운 매장을 불러오는 중입니다...
+          </Text>
         )}
       </ScrollView>
     </SafeAreaView>

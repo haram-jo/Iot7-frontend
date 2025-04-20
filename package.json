@@ -24,6 +24,7 @@
     "base-64": "^1.0.0",
     "dayjs": "^1.11.13",
     "expo": "^52.0.38",
+    "expo-location": "~18.0.10",
     "firebase": "^11.5.0",
     "react": "^18.3.1",
     "react-dom": "18.3.1",
@@ -39,7 +40,8 @@
     "react-native-screens": "~4.4.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
-    "web-streams-polyfill": "^3.3.3"
+    "web-streams-polyfill": "^3.3.3",
+    "react-native-maps": "1.18.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
