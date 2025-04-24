@@ -1,5 +1,5 @@
 import {Text, View} from 'react-native';
-import GlobalStyles from '../styles/GlobalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 import React from 'react';
 
 const Review = () => {

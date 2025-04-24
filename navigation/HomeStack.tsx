@@ -16,7 +16,7 @@ const Stack = createNativeStackNavigator();
 //순서대로 맨 위에 있는 코드가 첫화면에 보여짐
 const HomeStack = () => {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator id={undefined} screenOptions={{headerShown: false}}>
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Product" component={ProductDetailScreen} />
       <Stack.Screen name="SearchResult" component={SearchResultScreen} />
