@@ -38,8 +38,9 @@ const ProductDetailScreen = () => {
   const [currentStoreIndex, setCurrentStoreIndex] = useState(0);
   const mapRef = useRef<MapView | null>(null);
   const markerRefs = useRef<(MapMarker | null)[]>([]); // ✅ 지도 말풍선 자동 표시
+  const userMarkerRef = useRef<MapMarker | null>(null);
 
-  // ✅ 메뉴 받아오기
+  // ✅ 1. 상세 메뉴 정보 받아오기
   useEffect(() => {
     const fetchMenuDetail = async () => {
       try {
@@ -53,7 +54,7 @@ const ProductDetailScreen = () => {
     fetchMenuDetail();
   }, [menuId]);
 
-  // ✅ 내 위치 보내고 가까운 매장 값 받아오기
+  // ✅ 2.  내 위치 + 가까운 매장 불러오기
   useEffect(() => {
     const fetchNearestStores = async () => {
       try {
@@ -81,7 +82,7 @@ const ProductDetailScreen = () => {
     }
   }, [menuDetail]);
 
-  // ✅ 첫 번째 매장 말풍선 자동 표시
+  // ✅ 3. 첫 번째 매장 말풍선 자동 표시
   useEffect(() => {
     if (nearestStores.length === 0) return;
 
@@ -98,7 +99,7 @@ const ProductDetailScreen = () => {
     setTimeout(tryShowFirstCallout, 800);
   }, [nearestStores]);
 
-  // ✅ 현재 매장 인덱스 바뀔 때 말풍선 띄우기
+  // ✅ 4. 현재 매장 인덱스 바뀔 때 말풍선 띄우기
   useEffect(() => {
     const targetMarker = markerRefs.current[currentStoreIndex];
     if (targetMarker) {
@@ -108,7 +109,7 @@ const ProductDetailScreen = () => {
     }
   }, [currentStoreIndex]);
 
-  // ✅ 말풍선 고정할수있는 기능 리엑트 map엔 없어서 강제로 재실행해서 띄워놈
+  // ✅ 5. 말풍선 고정할수있는 기능 리엑트 map엔 없어서 강제로 재실행해서 띄워놈
   useEffect(() => {
     const interval = setInterval(() => {
       const marker = markerRefs.current[currentStoreIndex];
@@ -122,7 +123,7 @@ const ProductDetailScreen = () => {
 
   if (!menuDetail) return <Text style={styles.loading}>로딩중...</Text>;
 
-  // ✅ 버튼으로 다음 매장 이동하는 함수
+  // ✅ 6. 지금 선택된 매장에서 다음 매장으로 지도 이동
   const goToNextStore = () => {
     if (nearestStores.length === 0) return; //  // 매장이 없으면 아무것도 안 함
 
@@ -229,7 +230,7 @@ const ProductDetailScreen = () => {
 
         <Text style={styles.sectionTitle}>블로그 리뷰</Text>
         {menuDetail.blogPosts?.length > 0 ? (
-          <FlatList
+          <FlatList // 가로 스크롤 카드 형식으로 출력
             data={menuDetail.blogPosts}
             horizontal
             pagingEnabled
@@ -295,50 +296,62 @@ const ProductDetailScreen = () => {
         <Text style={styles.sectionTitle}>가까운 매장 위치</Text>
         {userLocation && nearestStores.length > 0 ? (
           <View>
-            <MapView
-              ref={mapRef}
-              style={{
-                width: '100%',
-                height: 300,
-                marginTop: 10,
-                borderRadius: 10,
-              }}
-              initialRegion={{
-                // 첫 번째 매장 기준으로 지도 처음 위치 설정
-                latitude:
-                  nearestStores[0]?.latitude ||
-                  userLocation?.latitude ||
-                  37.5665,
-                longitude:
-                  nearestStores[0]?.longitude ||
-                  userLocation?.longitude ||
-                  126.978,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}>
-              <Marker
-                coordinate={userLocation}
-                title="내 위치"
-                pinColor="blue"
-              />
-              {nearestStores.map((store, idx) => (
+            {userLocation.latitude && userLocation.longitude && (
+              <MapView
+                ref={mapRef}
+                style={{
+                  width: '100%',
+                  height: 300,
+                  marginTop: 10,
+                  borderRadius: 10,
+                }}
+                initialRegion={{
+                  // 첫 번째 매장 기준으로 지도 처음 위치 설정
+                  latitude:
+                    nearestStores[0]?.latitude ||
+                    userLocation?.latitude ||
+                    37.5665,
+                  longitude:
+                    nearestStores[0]?.longitude ||
+                    userLocation?.longitude ||
+                    126.978,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+                // ✅ 맵이 준비되면 내 위치 말풍선 자동 띄우기
+                onMapReady={() => {
+                  setTimeout(() => {
+                    userMarkerRef.current?.showCallout(); // ✅ 말풍선 표시
+                  }, 500); // 렌더 완료 후 약간의 시간 차 줌
+                }}>
                 <Marker
-                  key={idx}
-                  ref={ref => (markerRefs.current[idx] = ref)} // ✅ ref 저장
-                  coordinate={{
-                    latitude: store.latitude,
-                    longitude: store.longitude,
-                  }}
-                  title={store.location} // ✅ 위치 (말풍선 제목)
-                  description={store.businessName} // ✅ 브랜드명 (말풍선 설명)
+                  ref={userMarkerRef} // ✅ ref 추가
+                  coordinate={userLocation}
+                  title="내 위치"
+                  pinColor="blue"
                 />
-              ))}
-            </MapView>
+                {nearestStores.map((store, idx) => (
+                  <Marker
+                    key={idx}
+                    ref={ref => (markerRefs.current[idx] = ref)} // ✅ ref 저장
+                    coordinate={{
+                      latitude: store.latitude,
+                      longitude: store.longitude,
+                    }}
+                    title={store.location} // ✅ 위치 (말풍선 제목)
+                    description={store.businessName} // ✅ 브랜드명 (말풍선 설명)
+                  />
+                ))}
+              </MapView>
+            )}
 
             {/* 내 위치로 이동 버튼 */}
             <TouchableOpacity
               onPress={() => {
                 if (mapRef.current && userLocation) {
+                  // ✅ 현재 매장 인덱스 초기화
+                  setCurrentStoreIndex(0);
+
                   mapRef.current.animateToRegion(
                     {
                       latitude: userLocation.latitude,
