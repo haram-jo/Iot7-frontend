@@ -156,6 +156,19 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     color: '#333',
   },
+
+  imageFrame: {
+    flex: 1,
+    overflow: 'hidden', // 이미지 넘치면 잘라줌
+    borderRadius: 8,
+  },
+
+  zoomedImage: {
+    width: '130%', // 이미지 자체 확대
+    height: '130%',
+    resizeMode: 'cover', // 비율 유지하며 채움
+    alignSelf: 'center', // 중앙 확대 유지
+  },
 });
 
 export default styles;

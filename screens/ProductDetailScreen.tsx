@@ -30,6 +30,7 @@ const ProductDetailScreen = () => {
   const navigation = useNavigation<NavigationProp>(); // ✅ 타입 명확히 지정
   const route = useRoute<ProductRouteProp>();
   const {menuId} = route.params;
+  const [popularMenus, setPopularMenus] = useState<any[]>([]);
 
   const [menuDetail, setMenuDetail] = useState<any>(null);
   const [isLiked, setIsLiked] = useState(false);
@@ -82,7 +83,29 @@ const ProductDetailScreen = () => {
     }
   }, [menuDetail]);
 
-  // ✅ 3. 첫 번째 매장 말풍선 자동 표시
+  // ✅ 3. 클릭수 기준 인기 메뉴 API 호출
+  useEffect(() => {
+    const fetchPopularMenus = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/click/popular?brandName=${encodeURIComponent(
+            menuDetail.businessName,
+          )}`,
+        );
+        const data = await response.json();
+        const filtered = data.filter((item: any) => item.menuId !== menuId);
+        setPopularMenus(filtered); // 자기 자신 제외
+      } catch (error) {
+        console.error('인기 상품 불러오기 오류:', error);
+      }
+    };
+
+    if (menuDetail?.businessName) {
+      fetchPopularMenus();
+    }
+  }, [menuDetail]);
+
+  // ✅ 4. 첫 번째 가까운 매장 말풍선 자동 표시
   useEffect(() => {
     if (nearestStores.length === 0) return;
 
@@ -99,7 +122,7 @@ const ProductDetailScreen = () => {
     setTimeout(tryShowFirstCallout, 800);
   }, [nearestStores]);
 
-  // ✅ 4. 현재 매장 인덱스 바뀔 때 말풍선 띄우기
+  // ✅ 5. 현재 매장 바뀔 때 말풍선 띄우기
   useEffect(() => {
     const targetMarker = markerRefs.current[currentStoreIndex];
     if (targetMarker) {
@@ -109,7 +132,7 @@ const ProductDetailScreen = () => {
     }
   }, [currentStoreIndex]);
 
-  // ✅ 5. 말풍선 고정할수있는 기능 리엑트 map엔 없어서 강제로 재실행해서 띄워놈
+  // ✅ 6. 말풍선 고정할수있는 기능! - 리엑트 map엔 없어서 강제 재실행해서 띄워놈
   useEffect(() => {
     const interval = setInterval(() => {
       const marker = markerRefs.current[currentStoreIndex];
@@ -123,7 +146,7 @@ const ProductDetailScreen = () => {
 
   if (!menuDetail) return <Text style={styles.loading}>로딩중...</Text>;
 
-  // ✅ 6. 지금 선택된 매장에서 다음 매장으로 지도 이동
+  // ✅ 7. 선택된 매장에서 다음 매장으로 지도 이동
   const goToNextStore = () => {
     if (nearestStores.length === 0) return; //  // 매장이 없으면 아무것도 안 함
 
@@ -146,12 +169,14 @@ const ProductDetailScreen = () => {
 
   return (
     <SafeAreaView style={styles.wrapper}>
+      {/* 📍뒤로가기📍 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
       </View>
 
+      {/* 📍대표 이미지 + 찜 버튼 📍*/}
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.imageWrapper}>
           <Image source={{uri: menuDetail.imageUrl}} style={styles.mainImage} />
@@ -166,6 +191,7 @@ const ProductDetailScreen = () => {
           </TouchableOpacity>
         </View>
 
+        {/*📍브랜드명 클릭 → 브랜드 메뉴로 이동📍*/}
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('BrandMenuList', {
@@ -176,7 +202,7 @@ const ProductDetailScreen = () => {
             {menuDetail.businessName} 브랜드 &gt;
           </Text>
         </TouchableOpacity>
-
+        {/*📍메뉴명 + 별점 📍*/}
         <View style={styles.nameAndStar}>
           <Text style={styles.menuName}>{menuDetail.menuName}</Text>
           <TouchableOpacity
@@ -195,6 +221,7 @@ const ProductDetailScreen = () => {
 
         <Text style={styles.description}>{menuDetail.description}</Text>
 
+        {/* 📍정보📍 */}
         <View style={styles.summaryTable}>
           <View style={styles.tableRow}>
             <Text style={styles.tableHeader}>가격</Text>
@@ -210,15 +237,33 @@ const ProductDetailScreen = () => {
           </View>
         </View>
 
+        {/* 📍클릭수 기준 인기상품📍 */}
         <Text style={styles.sectionTitle}>이 브랜드의 인기상품</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.horizontalCards}>
-            {[...Array(6)].map((_, idx) => (
-              <View key={idx} style={styles.card} />
-            ))}
-          </View>
-        </ScrollView>
 
+        {popularMenus.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.horizontalCards}>
+              {popularMenus.map((item, idx) => (
+                <TouchableOpacity
+                  key={item.menuId}
+                  onPress={() =>
+                    navigation.navigate('Product', {menuId: item.menuId})
+                  }
+                  style={styles.card}>
+                  <View style={styles.imageFrame}>
+                    <Image
+                      source={{uri: item.imageUrl}}
+                      style={styles.zoomedImage}
+                    />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        ) : (
+          <Text style={{color: '#888'}}>인기 상품이 없습니다.</Text>
+        )}
+        {/*📍추천메뉴 (임시 박스)📍 */}
         <Text style={styles.sectionTitle}>다른 추천 메뉴</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.horizontalCards}>
@@ -227,7 +272,7 @@ const ProductDetailScreen = () => {
             ))}
           </View>
         </ScrollView>
-
+        {/*📍블로그 리뷰📍 */}
         <Text style={styles.sectionTitle}>블로그 리뷰</Text>
         {menuDetail.blogPosts?.length > 0 ? (
           <FlatList // 가로 스크롤 카드 형식으로 출력
@@ -260,6 +305,7 @@ const ProductDetailScreen = () => {
           <Text style={{color: '#999'}}>블로그 리뷰가 없습니다.</Text>
         )}
 
+        {/* 📍유튜브 리뷰📍 */}
         <Text style={styles.sectionTitle}>유튜브 리뷰</Text>
         {menuDetail.youtubeVideos?.length > 0 ? (
           <FlatList
@@ -345,7 +391,7 @@ const ProductDetailScreen = () => {
               </MapView>
             )}
 
-            {/* 내 위치로 이동 버튼 */}
+            {/*📍내 위치로 이동 버튼📍 */}
             <TouchableOpacity
               onPress={() => {
                 if (mapRef.current && userLocation) {
@@ -375,7 +421,7 @@ const ProductDetailScreen = () => {
               <Ionicons name="locate" size={36} color="#007aff" />
             </TouchableOpacity>
 
-            {/* 다음 매장으로 이동 버튼 */}
+            {/* 📍다음 매장으로 이동 버튼📍 */}
             <TouchableOpacity
               onPress={goToNextStore}
               style={{
