@@ -6,6 +6,7 @@ import {API_URL} from '@env';
 console.log('✅ 적용된 API_URL:', API_URL);
 import ListItem from './ListItem';
 import GlobalStyles from '../../styles/GlobalStyles';
+import {FlatList} from 'react-native-gesture-handler';
 
 // 홈화면에서 카테고리 탭 보여주고
 // 선택한 카테고리에 해당하는 제품을
@@ -113,9 +114,18 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
         ))}
       </ScrollView>
       {/*선택된 카테고리 제품 목록*/}
-      <View style={[GlobalStyles.sectionContainer, {height: height * 0.1}]}>
+      <View style={[GlobalStyles.sectionContainer, {height: height * 0.56}]}>
         {menus.length > 0 ? (
-          menus.map(menu => <ListItem key={menu.menuId} menu={menu} />) // Listitem과 연결된 부분
+          <FlatList
+            data={menus}
+            keyExtractor={(item, index) =>
+              item?.menuId ? item.menuId.toString() : `item-${index}`
+            }
+            renderItem={({item}) => <ListItem menu={item} />}
+            // renderItem={({item}) => <ListItem key={item.menuId} menu={item} />}
+            contentContainerStyle={{paddingBottom: height * 0.02}}
+            showsVerticalScrollIndicator={false}
+          />
         ) : (
           <Text style={GlobalStyles.text}>
             이 카테고리에는 제품이 없습니다.

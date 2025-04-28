@@ -13,13 +13,14 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/MainStack';
 import {API_URL} from '@env';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {Ionicons} from '@expo/vector-icons';
 
 type ReviewListRouteProp = RouteProp<RootStackParamList, 'ReviewList'>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 const ReviewListScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ReviewListRouteProp>();
-  const {menuId, menuName, imageUrl} = route.params;
+  const {menuId, menuName, imageUrl, brandName} = route.params;
 
   const [reviews, setReviews] = useState([]);
 
@@ -40,6 +41,11 @@ const ReviewListScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* 상단 영역 */}
+      <View style={styles.backHeader}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.header}>
         <Image source={{uri: imageUrl}} style={styles.image} />
         <Text style={styles.title}>{menuName}</Text>
@@ -74,6 +80,7 @@ const ReviewListScreen = () => {
             menuId,
             menuName,
             imageUrl,
+            brandName,
           })
         }>
         <Text style={styles.writeText}>리뷰 작성하기</Text>
@@ -131,6 +138,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  backHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
   },
 });
 

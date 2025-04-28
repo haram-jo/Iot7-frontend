@@ -26,6 +26,7 @@ interface Props {
   imageUrls: string[];
   setImageUrls: (urls: string[]) => void;
   onSubmit: () => void;
+  onPickImage: () => void;
 }
 
 const ReviewForm = ({
@@ -44,6 +45,7 @@ const ReviewForm = ({
   imageUrls, // ✅ 상태 공유
   setImageUrls,
   onSubmit,
+  onPickImage,
 }: Props) => {
   const renderChoiceGroup = (
     label: string,
@@ -97,7 +99,9 @@ const ReviewForm = ({
 
       <Text style={styles.label}>포토</Text>
       <ReviewImageUploader imageUrls={imageUrls} setImageUrls={setImageUrls} />
-
+      <TouchableOpacity style={styles.secondaryButton} onPress={onPickImage}>
+        <Text style={styles.buttonText}>영수증 인증</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={onSubmit}>
         <Text style={styles.buttonText}>리뷰 등록</Text>
       </TouchableOpacity>
@@ -149,6 +153,13 @@ const styles = StyleSheet.create({
   choiceText: {
     color: '#000',
     fontWeight: 'bold',
+  },
+  secondaryButton: {
+    marginTop: 16,
+    backgroundColor: '#A29BFE',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
   },
 });
 

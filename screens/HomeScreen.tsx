@@ -1,11 +1,5 @@
 import React, {useState, useContext} from 'react';
-import {
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {Alert} from 'react-native';
 import SearchBar from '../components/mainpage/SearchBar';
 import Banner from '../components/mainpage/Banner';

@@ -211,6 +211,7 @@ const ProductDetailScreen = () => {
                 menuId: menuId,
                 menuName: menuDetail.menuName,
                 imageUrl: menuDetail.imageUrl,
+                brandName: menuDetail.businessName,
               })
             }>
             <Text style={styles.stars}>

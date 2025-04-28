@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import type {RootStackParamList} from '../../types/navigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import GlobalStyles from '../../styles/GlobalStyles';
+import TextTicker from 'react-native-text-ticker';
 
 /* 메인 화면에서 제품 카드 하나하나를 보여주는 컴포넌트 파일 */
 
@@ -75,12 +76,18 @@ const ListItem: React.FC<ListItemProps> = ({menu}) => {
               width: '87%',
             }}>
             {/* 왼쪽: 메뉴 이름 */}
-            <Text
-              style={GlobalStyles.name}
-              numberOfLines={1}
-              ellipsizeMode="tail">
+            <TextTicker
+              style={[GlobalStyles.name, {maxWidth: width * 0.5}]}
+              // numberOfLines={1}
+              // ellipsizeMode="tail"
+              duration={5000} // 텍스트가 이동하는 속도
+              loop // 무한 반복
+              // bounce // 끝에 닿으면 되돌아감
+              repeatSpacer={50} // 반복 시 여백
+              marqueeDelay={1000} // 시작 전에 1초 대기
+            >
               {menu ? `${menu.menuName}` : '메뉴없음'}{' '}
-            </Text>
+            </TextTicker>
             {/* 오른쪽: 별점 + 하트 */}
             <View
               style={{
@@ -113,14 +120,17 @@ const ListItem: React.FC<ListItemProps> = ({menu}) => {
           <Text style={GlobalStyles.price}>
             {menu ? `${menu.price}원` : '가격정보 없음'}{' '}
           </Text>
-          {/* ✅ 하단 보조 텍스트 (현재는 고정 텍스트) */}
+          {/* ✅ 메뉴 설명 */}
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
             }}>
-            <Text style={GlobalStyles.text}>
+            <Text
+              style={[GlobalStyles.text, {maxWidth: width * 0.63}]}
+              numberOfLines={1}
+              ellipsizeMode="tail">
               {menu ? `${menu.description}` : '설명 없음'}
             </Text>
           </View>
