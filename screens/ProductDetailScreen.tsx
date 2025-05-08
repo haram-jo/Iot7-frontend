@@ -10,7 +10,7 @@ import {
   Dimensions,
   Linking,
 } from 'react-native';
-import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/MainStack';
 import {API_URL} from '@env';
 import {Ionicons} from '@expo/vector-icons';
@@ -23,12 +23,11 @@ import styles, {ITEM_WIDTH, SPACING} from '../styles/ProductDetailStyles';
 const {width} = Dimensions.get('window');
 
 // ✅ 라우트 및 네비게이션 타입 정의
-type ProductRouteProp = RouteProp<RootStackParamList, 'Product'>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const ProductDetailScreen = () => {
   const navigation = useNavigation<NavigationProp>(); // ✅ 타입 명확히 지정
-  const route = useRoute<ProductRouteProp>();
+  const route = useRoute<any>();
   const {menuId} = route.params;
   const [popularMenus, setPopularMenus] = useState<any[]>([]);
 
@@ -196,6 +195,7 @@ const ProductDetailScreen = () => {
           onPress={() =>
             navigation.navigate('BrandMenuList', {
               brandName: menuDetail.businessName,
+              businessId: menuDetail.businessId, // ← 이게 꼭 필요해
             })
           }>
           <Text style={styles.brandText}>

@@ -73,13 +73,19 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
 
     // if ( selectedCategory){
     axios
-      .get(`${API_URL}/menu`, {params: {category: selectedCategory}}) // path variable방식으로 요청
+      .get(`${API_URL}/menu`, {params: {category: selectedCategory}})
       .then(response => {
-        setMenus(response.data);
+        const mapped = response.data.map((item: any) => ({
+          ...item,
+          rating: item.averageRating ?? 0, // ✅ 평균 별점 → rating으로 매핑
+        }));
+        setMenus(mapped);
+        console.log('✅ 받아온 메뉴:', mapped);
       })
       .catch(error => {
         console.error('/components/CategoryTabs 카테고리 메뉴 오류:', error);
       });
+
     // }
   }, [selectedCategory]);
 

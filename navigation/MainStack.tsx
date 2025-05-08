@@ -24,7 +24,7 @@ export type RootStackParamList = {
   Signup: undefined;
   BottomNav: undefined;
   Product: {menuId: number}; //Product page는 숫자를 받아야한다고 명시
-  BrandMenuList: {brandName: string}; //brandmenuList page는 string받겠다 명시
+  BrandMenuList: {brandName: string; businessId: number}; //brandmenuList page는 string받겠다 명시
   SearchResult: {results: any[]};
 
   //SearchResult: {results: any};

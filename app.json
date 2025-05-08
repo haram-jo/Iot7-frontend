@@ -1,16 +1,18 @@
 {
-  "name": "new_menu",
-  "displayName": "new_menu",
-  "android": {
-    "package": "com.anonymous.new_menu"
-  },
   "expo": {
-    "entryPoint": "./App.js",
+    "name": "new_menu",
+    "slug": "new_menu",
+    "version": "1.0.0",
+    "sdkVersion": "53.0.0",
+    "android": {
+      "package": "com.anonymous.new_menu"
+    },
     "web": {
       "config": {
         "redirectUri": "https://iot7-435d1.firebaseapp.com/__/auth/handler"
       }
     },
+    "projectId": "c5da13a1-2edd-442d-8a64-f63cc8521182",
     "extra": {
       "apiKey": "AIzaSyCiorzdOWoeLPptWAV7xm56TmdN8lLqL4c",
       "authDomain": "iot7-435d1.firebaseapp.com",
@@ -18,7 +20,17 @@
       "storageBucket": "iot7-435d1.firebasestorage.app",
       "messagingSenderId": "981339430588",
       "appId": "1:981339430588:web:7b265ed5b76d038c7afab9",
-      "webClientId": "981339430588-ndvb7vp3eg9fp2l1tk1q4eu5pjp1s3mf.apps.googleusercontent.com"
-    }
+      "webClientId": "981339430588-ndvb7vp3eg9fp2l1tk1q4eu5pjp1s3mf.apps.googleusercontent.com",
+      "eas": {
+        "projectId": "c5da13a1-2edd-442d-8a64-f63cc8521182"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c5da13a1-2edd-442d-8a64-f63cc8521182"
+    },
+    "ios": {}
   }
 }

@@ -1,13 +1,13 @@
 {
+  "extends": ["expo/tsconfig.base"],
   "compilerOptions": {
-    "jsx": "react",
-    "moduleResolution": "node16",
-    "module": "Node16",
-    "customConditions": ["your-condition"],
-    "paths": {
-      "@firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"]
-    },
-    "strict": false  // 🚀 타입 검사 엄격도 완화 (auth의 any 타입 오류 해결)
-  },
-  "extends": ["@react-native/typescript-config/tsconfig.json", "expo/tsconfig.base"]
+    "strict": false,
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "bundler", // ✅ 핵심: 이걸로 바꿔야 customConditions 에러 사라짐
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "./@types"]
+  }
 }

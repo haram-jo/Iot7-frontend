@@ -21,25 +21,28 @@ const LocalMenuAlert = ({visible, setVisible, onHideToday, onNeverShow}) => {
     const fetchLocalMenu = async () => {
       const {status} = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') return;
-  
+
       const loc = await Location.getCurrentPositionAsync({});
       const cityInfo = await Location.reverseGeocodeAsync(loc.coords);
       const city = cityInfo?.[0]?.city;
-  
+
       if (city) {
         try {
-          const res = await fetch(`${API_URL}/api/menus/by-location?keyword=${encodeURIComponent(city)}`);
-          const data = await res.json(); 
+          const res = await fetch(
+            `${API_URL}/api/menus/by-location?keyword=${encodeURIComponent(
+              city,
+            )}`,
+          );
+          const data = await res.json();
           if (data.length > 0) {
             const randomMenu = data[Math.floor(Math.random() * data.length)];
-            setMenuInfo({ ...randomMenu, city });
+            setMenuInfo({...randomMenu, city});
           }
         } catch (err) {
           console.error('도시 기반 메뉴 요청 실패:', err);
         }
       }
     };
-  
     if (visible) {
       fetchLocalMenu();
     }
@@ -48,6 +51,9 @@ const LocalMenuAlert = ({visible, setVisible, onHideToday, onNeverShow}) => {
   if (!menuInfo) {
     return null;
   }
+  useEffect(() => {
+    console.log('✅ 받아온 메뉴 정보:', menuInfo);
+  }, [menuInfo]);
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -63,10 +69,10 @@ const LocalMenuAlert = ({visible, setVisible, onHideToday, onNeverShow}) => {
           <TouchableOpacity
             style={GlobalStyles.alertCloseButton}
             onPress={() => setVisible(false)}>
-            <Image
-              source={require('../assets/close-x.png')}
+            {/* <Image
+              source={require('')}
               style={GlobalStyles.closeIcon}
-            />
+            /> */}
           </TouchableOpacity>
 
           {/* ✅ 지역 기반 신상 메뉴 알림 텍스트 */}
@@ -74,9 +80,12 @@ const LocalMenuAlert = ({visible, setVisible, onHideToday, onNeverShow}) => {
             <Text style={GlobalStyles.alertModalTitle}>
               '{menuInfo.city}'에서만 먹을 수 있는 메뉴!
             </Text>
-            <Text style={GlobalStyles.alertModalSubTitle}>
-              지금 {menuInfo.city}에 계신 김에 ‘{menuInfo.menuName}’는
-              어떠신가요?
+            <Text style={GlobalStyles.subtitle}>
+              지금 '{menuInfo.brand}'에서 파는{' '}
+              <Text style={GlobalStyles.highlightedMenuName}>
+                '{menuInfo.menuName}'{' '}
+              </Text>
+              를 만나보세요!
             </Text>
           </View>
 

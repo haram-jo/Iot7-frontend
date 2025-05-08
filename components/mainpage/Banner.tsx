@@ -25,7 +25,7 @@ const Banner = () => {
       // 현재 위치 기반 메뉴 목록 menu배열 안에 저장
       if (city) {
         const res = await fetch(
-          `${API_URL}/api/menus/by-location?keyword=${encodeURIComponent(
+          `${API_URL}/api/menus/only-location?keyword=${encodeURIComponent(
             city,
           )}`,
         );
@@ -44,7 +44,19 @@ const Banner = () => {
     fetchBannerMenu();
   }, []);
   if (menus.length === 0) {
-    return <ActivityIndicator size="large" color="#666" />;
+    // return <ActivityIndicator size="large" color="#666" />;
+    return (
+      <View
+        style={[
+          GlobalStyles.banner,
+          {justifyContent: 'center', backgroundColor: '#fff8de'},
+        ]}>
+        {/* <Image
+          style={GlobalStyles.bannerImage}
+          source={require('../../asserts/images/logo.png')}
+        /> */}
+      </View>
+    );
   }
 
   // useEffect(() => {
@@ -74,9 +86,9 @@ const Banner = () => {
                 <Text style={GlobalStyles.subtitle}>
                   '{item.brand}'에서 파는{' '}
                   <Text style={GlobalStyles.highlightedMenuName}>
-                    '{item.menuName}'
+                    '{item.menuName}'{' '}
                   </Text>
-                  는 어떠신가요?
+                  어떠신가요?
                 </Text>
               </View>
               <Image

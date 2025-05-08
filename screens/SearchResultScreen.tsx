@@ -45,8 +45,8 @@ const SearchResultScreen = () => {
         `${API_URL}/menu/search?keyword=${encodeURIComponent(keyword)}`,
       );
       let data = await response.json();
-      setAllSearchResults(data); // 검색어 전체 저장
-      setResults(data); // 검색 시 기존 필터 적용 없이 리셋
+      setAllSearchResults(data); // 🔹 전체 검색 결과 저장
+      setResults(data); // 🔹 검색 결과 반영
     } catch (error) {
       console.error('검색 중 오류:', error);
     }
@@ -54,7 +54,7 @@ const SearchResultScreen = () => {
 
   // ✅ 필터 조건에 따라 결과 목록 정렬하는 함수
   const handleApplyFilter = async (filters: any) => {
-    let filtered = [...allSearchResults]; //항상 전체 검색 결과 기준으로 필터링 시작
+    let filtered = [...allSearchResults]; // 🔥 항상 최신 전체 결과 기준으로 필터링
 
     // ✅ 1. 재료 키워드 필터링 (ex: '우유' 포함된 메뉴만 보기)
     if (filters.ingredientKeyword) {
@@ -77,9 +77,7 @@ const SearchResultScreen = () => {
 
     // 브랜드 필터링도 함께 적용 (브랜드 선택된 경우)
     if (selectedBrand) {
-      filtered = filtered.filter(
-        item => item.businessUser?.businessName === selectedBrand,
-      );
+      filtered = filtered.filter(item => item.brand === selectedBrand);
     }
 
     // ✅ 3. 정렬 필터링 ( ex: 인기순, 신상순, 다이어트 순)
@@ -110,15 +108,10 @@ const SearchResultScreen = () => {
   // ✅ 4. 브랜드 선택 시 메뉴 필터링 ( ex: 메가커피, 빽다방, CU)
   const handleBrandSelect = (brandName: string) => {
     setSelectedBrand(brandName); // 🔹 선택한 브랜드 저장
+    setBrandModalVisible(false); // 🔹 모달 닫기
 
-    const filtered = allSearchResults.filter(
-      item =>
-        item.businessUser?.businessName === brandName &&
-        item.businessUser?.businessType === '본점',
-    );
-
+    const filtered = allSearchResults.filter(item => item.brand === brandName);
     setResults(filtered);
-    setBrandModalVisible(false);
   };
 
   return (
@@ -157,7 +150,7 @@ const SearchResultScreen = () => {
         </View>
       </View>
 
-      {/*✅ 상세페이지 이동 추가 */}
+      {/*✅ 상세페이지 이동 추가*/}
       <View style={{padding: 16}}>
         {Array.isArray(results) && results.length > 0 ? (
           results.map((menu, idx) => (
@@ -181,9 +174,9 @@ const SearchResultScreen = () => {
                 shadowOffset: {width: 0, height: 1},
               }}>
               {/* ✅ 이미지 보여주기 */}
-              {menu.image ? (
+              {menu.imageUrl ? (
                 <Image
-                  source={{uri: menu.image}}
+                  source={{uri: menu.imageUrl}}
                   style={{width: 70, height: 70, borderRadius: 6}}
                   resizeMode="cover"
                 />

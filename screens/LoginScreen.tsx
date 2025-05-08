@@ -10,10 +10,7 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {signInWithEmailAndPassword} from 'firebase/auth';
 import {signInWithEmail} from '../services/auth';
-import {auth} from '../services/firebaseConfig'; // 🔧 Firebase 설정
-import {API_URL} from '@env';
 import {RootStackParamList} from '../navigation/MainStack';
 import {useContext} from 'react'; //
 import {AuthContext} from '../contexts/AuthContext';
