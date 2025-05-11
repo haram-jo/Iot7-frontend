@@ -19,6 +19,9 @@ import MapView, {Marker, MapMarker} from 'react-native-maps';
 import * as Location from 'expo-location';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styles, {ITEM_WIDTH, SPACING} from '../styles/ProductDetailStyles';
+import {useContext} from 'react';
+import {AuthContext} from '../contexts/AuthContext';
+import Toast from 'react-native-root-toast';
 
 const {width} = Dimensions.get('window');
 
@@ -30,6 +33,7 @@ const ProductDetailScreen = () => {
   const route = useRoute<any>();
   const {menuId} = route.params;
   const [popularMenus, setPopularMenus] = useState<any[]>([]);
+  const {user} = useContext(AuthContext);
 
   const [menuDetail, setMenuDetail] = useState<any>(null);
   const [isLiked, setIsLiked] = useState(false);
@@ -40,7 +44,70 @@ const ProductDetailScreen = () => {
   const markerRefs = useRef<(MapMarker | null)[]>([]); // ✅ 지도 말풍선 자동 표시
   const userMarkerRef = useRef<MapMarker | null>(null);
 
-  // ✅ 1. 상세 메뉴 정보 받아오기
+  //✅ 1. 화면진입시 구독여부에 따른 하트색깔 보여주는 함수
+  useEffect(() => {
+    if (!menuDetail || !user) return;
+
+    const checkIsLiked = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/menu-subscribe/check?userId=${user.userId}&menuId=${menuId}`,
+        );
+        const result = await response.json();
+        setIsLiked(result);
+      } catch (error) {
+        console.error('구독 여부 확인 실패:', error);
+      }
+    };
+
+    checkIsLiked();
+  }, [menuDetail, user]);
+
+  // ✅ 2. 하트 눌렀을때 구독 or 취소해주는 함수
+  const toggleLike = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/menu-subscribe`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          userId: user.userId,
+          menuId: menuId,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setIsLiked(result); // 하트 상태 업데이트
+
+        // Toast 알림 띄우기
+        Toast.show(
+          result
+            ? '제품을 즐겨찾기에 추가했어요'
+            : '제품을 즐겨찾기에서 제거했어요',
+          {
+            duration: Toast.durations.SHORT,
+            position: Toast.positions.BOTTOM,
+            backgroundColor: '#222',
+            textColor: '#fff',
+            containerStyle: {
+              marginBottom: 20,
+              width: '90%',
+              paddingVertical: 12,
+              paddingHorizontal: 20,
+              alignSelf: 'center',
+              minWidth: 350,
+            },
+          },
+        );
+      } else {
+        console.log('구독 실패!');
+      }
+    } catch (error) {
+      console.error('구독 토글 에러:', error);
+    }
+  };
+
+  // ✅ 3. 상세 메뉴 정보 받아오기
   useEffect(() => {
     const fetchMenuDetail = async () => {
       try {
@@ -54,7 +121,7 @@ const ProductDetailScreen = () => {
     fetchMenuDetail();
   }, [menuId]);
 
-  // ✅ 2.  내 위치 + 가까운 매장 불러오기
+  // ✅ 4.  내 위치 + 가까운 매장 불러오기
   useEffect(() => {
     const fetchNearestStores = async () => {
       try {
@@ -82,7 +149,7 @@ const ProductDetailScreen = () => {
     }
   }, [menuDetail]);
 
-  // ✅ 3. 클릭수 기준 인기 메뉴 API 호출
+  // ✅ 5. 클릭수 기준 인기 메뉴 API 호출
   useEffect(() => {
     const fetchPopularMenus = async () => {
       try {
@@ -104,7 +171,7 @@ const ProductDetailScreen = () => {
     }
   }, [menuDetail]);
 
-  // ✅ 4. 첫 번째 가까운 매장 말풍선 자동 표시
+  // ✅ 6. 첫 번째 가까운 매장 말풍선 자동 표시
   useEffect(() => {
     if (nearestStores.length === 0) return;
 
@@ -121,7 +188,7 @@ const ProductDetailScreen = () => {
     setTimeout(tryShowFirstCallout, 800);
   }, [nearestStores]);
 
-  // ✅ 5. 현재 매장 바뀔 때 말풍선 띄우기
+  // ✅ 7. 현재 매장 바뀔 때 말풍선 띄우기
   useEffect(() => {
     const targetMarker = markerRefs.current[currentStoreIndex];
     if (targetMarker) {
@@ -131,7 +198,7 @@ const ProductDetailScreen = () => {
     }
   }, [currentStoreIndex]);
 
-  // ✅ 6. 말풍선 고정할수있는 기능! - 리엑트 map엔 없어서 강제 재실행해서 띄워놈
+  // ✅ 8. 말풍선 고정할수있는 기능! - 리엑트 map엔 없어서 강제 재실행해서 띄워놈
   useEffect(() => {
     const interval = setInterval(() => {
       const marker = markerRefs.current[currentStoreIndex];
@@ -145,7 +212,7 @@ const ProductDetailScreen = () => {
 
   if (!menuDetail) return <Text style={styles.loading}>로딩중...</Text>;
 
-  // ✅ 7. 선택된 매장에서 다음 매장으로 지도 이동
+  // ✅ 9. 선택된 매장에서 다음 매장으로 지도 이동
   const goToNextStore = () => {
     if (nearestStores.length === 0) return; //  // 매장이 없으면 아무것도 안 함
 
@@ -181,7 +248,15 @@ const ProductDetailScreen = () => {
           <Image source={{uri: menuDetail.imageUrl}} style={styles.mainImage} />
           <TouchableOpacity
             style={styles.heartButton}
-            onPress={() => setIsLiked(!isLiked)}>
+            onPress={() => {
+              if (!user) {
+                console.log('로그인 필요');
+                navigation.navigate('Login');
+                return;
+              }
+
+              toggleLike();
+            }}>
             <Ionicons
               name={isLiked ? 'heart' : 'heart-outline'}
               size={28}

@@ -15,8 +15,13 @@ import {
   MaterialIcons,
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
-
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/MainStack';
 const MyPage = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
@@ -43,7 +48,9 @@ const MyPage = () => {
 
         <View style={styles.separator} />
         <View style={styles.iconRow}>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.navigate('SubscribedBrandList')}>
             <MaterialIcons name="subscriptions" size={30} color="#3366ff" />
             <Text style={styles.iconLabel}>브랜드 구독</Text>
           </TouchableOpacity>
@@ -51,7 +58,9 @@ const MyPage = () => {
             <Ionicons name="heart" size={30} color="#3366ff" />
             <Text style={styles.iconLabel}>찜 메뉴</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.navigate('MyReviewList')}>
             <MaterialIcons name="rate-review" size={30} color="#3366ff" />
             <Text style={styles.iconLabel}>내 리뷰</Text>
           </TouchableOpacity>
