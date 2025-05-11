@@ -79,6 +79,13 @@ const ProductDetailScreen = () => {
         const result = await response.json();
         setIsLiked(result); // 하트 상태 업데이트
 
+        // 출력해서 확인해보기
+        if (result) {
+          console.log('✅ 제품 구독 완');
+        } else {
+          console.log('❌ 제품 구독취소 완');
+        }
+
         // Toast 알림 띄우기
         Toast.show(
           result
