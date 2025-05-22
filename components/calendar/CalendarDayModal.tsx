@@ -21,7 +21,7 @@ const CalendarDayModal = ({visible, date, event, onClose, onItemSelect}) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  // 뒤로가기 버튼(현재 무쓸모모)
+  // 뒤로가기 버튼(현재 무쓸모)
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',

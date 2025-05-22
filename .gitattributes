@@ -1,0 +1,2 @@
+# Git은 커밋할 땐 LF로 저장, Windows 환경에선 클론하거나 체크아웃할 때만 CRLF로 보여줌
+* text=auto eol=lf

@@ -80,3 +80,9 @@ yarn-error.log
 
 dist/
  
+# expo dev client 캐시 및 결과물 무시b (안드로이드 알람 설정 관련)
+.expo/
+*.apk
+*.aab
+*.ipa
+expo-dev-client                                                                                                                                                                                                                                                                                                                                                                                                                 

@@ -17,50 +17,62 @@ const PushTokenSender = () => {
       if (!user) return;
 
       try {
-        if (Device.isDevice) {
-          // 푸시 알림 권한 요청
-          const {status: existingStatus} =
-            await Notifications.getPermissionsAsync();
-          let finalStatus = existingStatus;
-
-          if (existingStatus !== 'granted') {
-            const {status} = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-          }
-
-          if (finalStatus !== 'granted') {
-            console.log('❌ 푸시 권한 거부됨');
-            return;
-          }
-
-          // ✅ Expo 푸시 토큰 발급
-          // ✅ Expo 푸시 토큰 발급
-          const token = (
-            await Notifications.getExpoPushTokenAsync({
-              projectId: 'c5da13a1-2edd-442d-8a64-f63cc8521182', // ← app.json의 값과 완전 일치!
-            })
-          ).data;
-          console.log('📱 내 Expo 토큰:', token);
-
-          // ✅ 백엔드에 토큰 전송
-          await axios.post(`${API_URL}/api/push-token`, {
-            userId: user.userId,
-            pushToken: token,
-          });
-
-          console.log('✅ 푸시 토큰 서버 전송 완료');
-        } else {
-          console.log('❌ 에뮬레이터는 푸시 지원 안 함');
+        if (!Device.isDevice) {
+          console.log('❌ 에뮬레이터는 푸시 미지원');
+          return;
         }
+
+        // ✅ 1. 서버에 저장된 기존 토큰 확인
+        const res = await axios.get(`${API_URL}/api/push-token`, {
+          params: {userId: user.userId},
+        });
+        const savedToken = res.data;
+        console.log('🧾 서버 저장된 토큰:', savedToken);
+
+        // ✅ 2. 이미 있으면 아무것도 안 함
+        if (savedToken) {
+          console.log('✅ 기존 토큰 존재 - 발급 생략');
+          return;
+        }
+
+        // ✅ 3. 푸시 권한 요청
+        const {status: existingStatus} =
+          await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+          const {status} = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        if (finalStatus !== 'granted') {
+          console.log('❌ 푸시 권한 거부됨');
+          return;
+        }
+
+        // ✅ 4. 새로 발급
+        const token = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId: 'c5da13a1-2edd-442d-8a64-f63cc8521182',
+          })
+        ).data;
+
+        console.log('📱 새로 발급된 토큰:', token);
+
+        // ✅ 5. 서버에 전송
+        await axios.post(`${API_URL}/api/push-token`, {
+          userId: user.userId,
+          pushToken: token,
+        });
+
+        console.log('✅ 푸시 토큰 서버 저장 완료');
       } catch (err) {
-        console.error('🔥 푸시 토큰 전송 실패:', err);
+        console.error('🔥 푸시 토큰 처리 실패:', err);
       }
     };
 
     registerAndSendToken();
   }, [user]);
 
-  return null; // 이 컴포넌트는 화면에 아무것도 렌더링하지 않음
+  return null;
 };
 
 export default PushTokenSender;

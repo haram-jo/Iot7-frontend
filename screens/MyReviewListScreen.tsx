@@ -3,21 +3,23 @@ import {
   View,
   Text,
   ScrollView,
-  FlatList,
   StyleSheet,
   Modal,
   TouchableOpacity,
   TextInput,
   Alert,
+  Platform,
+  Pressable,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Picker} from '@react-native-picker/picker';
 import StarRating from 'react-native-star-rating-widget';
 import axios from 'axios';
 import {getStoredUserData} from '../services/auth';
 import {API_URL} from '@env';
 import {useNavigation} from '@react-navigation/native';
 import {Ionicons} from '@expo/vector-icons';
+import {TouchableWithoutFeedback} from 'react-native';
+const options = ['좋음', '보통', '별로'];
 
 const MyReviewListScreen = () => {
   const [reviews, setReviews] = useState([]);
@@ -83,6 +85,31 @@ const MyReviewListScreen = () => {
     }
   };
 
+  const renderOptionSelector = (label, value, onChange) => (
+    <View style={styles.optionGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.optionRow}>
+        {options.map(opt => (
+          <TouchableOpacity
+            key={opt}
+            onPress={() => onChange(opt)}
+            style={[
+              styles.optionButton,
+              value === opt && styles.optionButtonSelected,
+            ]}>
+            <Text
+              style={[
+                styles.optionText,
+                value === opt && styles.optionTextSelected,
+              ]}>
+              {opt}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -137,81 +164,75 @@ const MyReviewListScreen = () => {
       </ScrollView>
 
       <Modal visible={!!selectedReview} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {selectedReview && (
-              <>
-                <Text style={styles.modalTitle}>
-                  📌 "{selectedReview.menuName}" 리뷰 수정하기
-                </Text>
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setSelectedReview(null)}>
+          <TouchableWithoutFeedback onPress={() => {}}>
+            <View style={styles.modalContent}>
+              <ScrollView contentContainerStyle={{paddingBottom: 20}}>
+                {selectedReview && (
+                  <>
+                    <Text style={styles.modalTitle}>
+                      📌 "{selectedReview.menuName}" 리뷰 수정하기
+                    </Text>
 
-                <Text style={[styles.label, {marginBottom: 8}]}>⭐ 별점</Text>
-                <StarRating
-                  rating={editedRating}
-                  onChange={setEditedRating}
-                  starSize={30}
-                />
-                <View style={{height: 16}} />
+                    <Text style={styles.label}>⭐ 별점</Text>
+                    <StarRating
+                      rating={editedRating}
+                      onChange={setEditedRating}
+                      starSize={30}
+                    />
 
-                <Text style={[styles.label, {marginBottom: 8}]}>
-                  ✍ 리뷰 내용
-                </Text>
-                <TextInput
-                  value={editedContent}
-                  onChangeText={setEditedContent}
-                  multiline
-                  style={styles.editInput}
-                />
+                    <Text style={styles.label}>✍ 리뷰 내용</Text>
+                    <TextInput
+                      value={editedContent}
+                      onChangeText={setEditedContent}
+                      multiline
+                      style={styles.editInput}
+                    />
 
-                <Text style={styles.label}>🥄 맛</Text>
-                <Picker
-                  selectedValue={editedTaste}
-                  onValueChange={setEditedTaste}>
-                  <Picker.Item label="좋음" value="좋음" />
-                  <Picker.Item label="보통" value="보통" />
-                  <Picker.Item label="별로" value="별로" />
-                </Picker>
+                    {renderOptionSelector('🥄 맛', editedTaste, setEditedTaste)}
+                    {renderOptionSelector(
+                      '🍚 양',
+                      editedAmount,
+                      setEditedAmount,
+                    )}
+                    {renderOptionSelector(
+                      '🔁 재방문 의사',
+                      editedWouldVisitAgain,
+                      setEditedWouldVisitAgain,
+                    )}
 
-                <Text style={styles.label}>🍚 양</Text>
-                <Picker
-                  selectedValue={editedAmount}
-                  onValueChange={setEditedAmount}>
-                  <Picker.Item label="많음" value="많음" />
-                  <Picker.Item label="보통" value="보통" />
-                  <Picker.Item label="별로" value="별로" />
-                </Picker>
+                    <View style={styles.buttonRow}>
+                      <TouchableOpacity
+                        style={[
+                          styles.modalButton,
+                          {backgroundColor: '#ff6666'},
+                        ]}
+                        onPress={handleDeleteReview}>
+                        <Text style={styles.modalButtonText}>삭제</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          styles.modalButton,
+                          {backgroundColor: '#3366ff'},
+                        ]}
+                        onPress={handleUpdateReview}>
+                        <Text style={styles.modalButtonText}>수정</Text>
+                      </TouchableOpacity>
+                    </View>
 
-                <Text style={styles.label}>🔁 재방문 의사</Text>
-                <Picker
-                  selectedValue={editedWouldVisitAgain}
-                  onValueChange={setEditedWouldVisitAgain}>
-                  <Picker.Item label="좋음" value="좋음" />
-                  <Picker.Item label="보통" value="보통" />
-                  <Picker.Item label="별로" value="별로" />
-                </Picker>
-
-                <View style={styles.buttonRow}>
-                  <TouchableOpacity
-                    style={[styles.modalButton, {backgroundColor: '#ff6666'}]}
-                    onPress={handleDeleteReview}>
-                    <Text style={styles.modalButtonText}>삭제</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.modalButton, {backgroundColor: '#3366ff'}]}
-                    onPress={handleUpdateReview}>
-                    <Text style={styles.modalButtonText}>수정</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setSelectedReview(null)}>
-                  <Text style={styles.closeButtonText}>닫기</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-        </View>
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={() => setSelectedReview(null)}>
+                      <Text style={styles.closeButtonText}>닫기</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </ScrollView>
+            </View>
+          </TouchableWithoutFeedback>
+        </Pressable>
       </Modal>
     </SafeAreaView>
   );
@@ -235,9 +256,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
-    padding: 20,
+    padding: 10,
   },
-  modalContent: {backgroundColor: '#fff', borderRadius: 12, padding: 20},
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    maxHeight: '90%',
+  },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -255,6 +281,33 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
     backgroundColor: '#f9f9f9',
+  },
+  optionGroup: {
+    marginTop: 12,
+  },
+  optionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
+  },
+  optionButton: {
+    flex: 1,
+    paddingVertical: 10,
+    marginHorizontal: 4,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  optionButtonSelected: {
+    backgroundColor: '#3366ff',
+  },
+  optionText: {
+    fontSize: 14,
+    color: '#555',
+  },
+  optionTextSelected: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   buttonRow: {
     flexDirection: 'row',

@@ -1,11 +1,17 @@
-{
-  "expo": {
+{    "expo": {
     "name": "new_menu",
     "slug": "new_menu",
     "version": "1.0.0",
     "sdkVersion": "53.0.0",
     "android": {
-      "package": "com.anonymous.new_menu"
+      "package": "com.anonymous.new_menu",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCXQGECD3R1TdxgmSf1pEToqHCCUZfI8to"
+        }
+      },
+        "googleServicesFile": "./android/app/google-services.json"
+
     },
     "web": {
       "config": {
@@ -25,9 +31,7 @@
         "projectId": "c5da13a1-2edd-442d-8a64-f63cc8521182"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/c5da13a1-2edd-442d-8a64-f63cc8521182"
     },

@@ -1,9 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Dimensions, Image, ActivityIndicator} from 'react-native';
+import {
+  View,
+  Text,
+  Dimensions,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import GlobalStyles from '../../styles/GlobalStyles';
 import {API_URL} from '@env';
 import * as Location from 'expo-location';
 import Carousel from 'react-native-reanimated-carousel';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../../types/navigation'; // 경로는 프로젝트 구조에 맞게 수정
 
 const {width, height} = Dimensions.get('window');
 
@@ -11,6 +21,8 @@ const Banner = () => {
   const [menus, setMenus] = useState([]);
   const [bgColors, setBgColor] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList, 'Product'>>();
 
   //위치기반 메뉴 불러오기
   useEffect(() => {
@@ -44,27 +56,20 @@ const Banner = () => {
     fetchBannerMenu();
   }, []);
   if (menus.length === 0) {
-    // return <ActivityIndicator size="large" color="#666" />;
     return (
       <View
         style={[
           GlobalStyles.banner,
           {justifyContent: 'center', backgroundColor: '#fff8de'},
         ]}>
-        {/* <Image
+        {/* 배너 기본 이미지 지정 */}
+        <Image
           style={GlobalStyles.bannerImage}
-          source={require('../../asserts/images/logo.png')}
-        /> */}
+          source={require('../../assets/images/logo_new.png')}
+        />
       </View>
     );
   }
-
-  // useEffect(() => {
-  //   fetch(`${API_URL}/banner`)
-  //     .then(res => res.json())
-  //     .then(data => setBannerItems(data))
-  //     .catch(err => console.error('베너 데이터 불러오기 실패:', err));
-  // }, []);
   return (
     <View style={GlobalStyles.wrapper}>
       <Carousel
@@ -78,7 +83,28 @@ const Banner = () => {
         renderItem={({item}) => {
           const bgColor = bgColors[item.menuId] ?? '#ffffff';
           return (
-            <View style={[GlobalStyles.banner, {backgroundColor: bgColor}]}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={[GlobalStyles.banner, {backgroundColor: bgColor}]}
+              onPress={async () => {
+                // ✅ 클릭 로그를 백엔드로 전송 ✅
+                try {
+                  const response = await fetch(
+                    `${API_URL}/click/log?menuId=${item.menuId}`,
+                    {
+                      method: 'POST',
+                    },
+                  );
+                  const result = await response.text();
+                  console.log('🔥 배너 클릭 로그 응답:', result);
+                } catch (error) {
+                  console.error('❌ 클릭 로그 전송 실패:', error);
+                }
+
+                navigation.navigate('Product', {menuId: item.menuId});
+              }}>
+              {/* <View style={[GlobalStyles.banner, {backgroundColor: bgColor}]}
+> */}
               <View style={GlobalStyles.textBox}>
                 <Text style={GlobalStyles.title}>
                   '{item.city}'에서만 먹을 수 있는 메뉴!
@@ -96,7 +122,8 @@ const Banner = () => {
                 style={GlobalStyles.bannerImage}
                 resizeMode="contain"
               />
-            </View>
+              {/* </View> */}
+            </TouchableOpacity>
           );
         }}
       />

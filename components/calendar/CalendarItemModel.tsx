@@ -11,6 +11,7 @@ import GlobalStyles from '../../styles/GlobalStyles';
 import {useNavigation} from '@react-navigation/native';
 import type {RootStackParamList} from '../../navigation/MainStack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {API_URL} from '@env';
 
 {
   /* 캘린더 제품 클릭 모델 */
@@ -67,7 +68,21 @@ const CalendarItemModel = ({
 
               <TouchableOpacity
                 style={[GlobalStyles.button_light, {marginBottom: 10}]}
-                onPress={() => {
+                onPress={async () => {
+                  // ✅ 클릭 로그를 백엔드로 전송 ✅
+                  try {
+                    const response = await fetch(
+                      `${API_URL}/click/log?menuId=${menu.menuId}`,
+                      {
+                        method: 'POST',
+                      },
+                    );
+                    const result = await response.text();
+                    console.log('🔥 캘린더 클릭 로그 응답:', result);
+                  } catch (error) {
+                    console.error('❌ 클릭 로그 전송 실패:', error);
+                  }
+
                   console.log('상세보기 클릭됨', menu.menuId);
                   onClose();
                   navigation.navigate('Product', {menuId: menu.menuId});

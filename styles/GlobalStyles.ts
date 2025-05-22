@@ -5,7 +5,7 @@ const {width, height} = Dimensions.get('window');
 const GlobalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5EFFF',
+    backgroundColor: '#fdf5e5',
     paddingTop: height * 0.05,
   },
   title: {
@@ -60,7 +60,7 @@ const GlobalStyles = StyleSheet.create({
   },
   sectionContainer: {
     // flex: 1,
-    backgroundColor: '#F5EFFF',
+    backgroundColor: '#fdf5e5',
     width: width,
     height: height * 0.06,
   },
@@ -238,31 +238,46 @@ const GlobalStyles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#fff',
   },
-  modalBackgroundImage: {
+  modalBannerImage: {
     width: '100%',
-    height: height * 0.5,
-    resizeMode: 'cover',
-  },
-  alertCloseButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
+    height: height * 0.3,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   closeIcon: {
-    width: 20,
-    height: 20,
+    position: 'absolute',
+    fontWeight: 'bold',
+    top: height * 0.02,
+    right: width * 0.04,
   },
   modalTextContainer: {
-    position: 'absolute',
-    bottom: 80,
-    left: 16,
-    right: 16,
+    paddingVertical: height * 0.02,
+    paddingHorizontal: width * 0.055,
+    alignItems: 'center',
+  },
+  alertModalOverlay: {
+    flex: 1,
+    justifyContent: 'center', // 세로 중앙
+    alignItems: 'center', // 가로 중앙
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 어두운 배경 (선택)
+  },
+  alertModalBox: {
+    width: '80%', // 너비 조절
+    backgroundColor: 'white', // 기본 배경
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center', // 내부 요소 가로 정렬
+    elevation: 10, // Android 그림자
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 10,
   },
   alertModalTitle: {
-    color: '#fff',
+    color: '#ffaa30',
     fontSize: 18,
     fontWeight: 'bold',
-    textShadowColor: '#000',
+    textShadowColor: '#d4a25b',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 3,
     marginBottom: 8,
@@ -276,14 +291,29 @@ const GlobalStyles = StyleSheet.create({
   },
   alertModalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#fff',
+    paddingBottom: 10,
   },
   alertModalButton: {
-    color: '#333',
-    fontSize: 14,
+    color: '#666',
+    fontSize: 13,
+    fontWeight: '500',
+    marginHorizontal: 10,
+  },
+  primaryButton: {
+    backgroundColor: '#5A2EFE', // 앱 주요 색상에 맞게 조정
+    paddingVertical: height * 0.016,
+    paddingHorizontal: width * 0.06,
+    borderRadius: 8,
+    marginBottom: height * 0.017,
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontSize: 15,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   slide: {
     flex: 1,

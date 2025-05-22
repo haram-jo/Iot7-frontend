@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
 import {useRoute, useNavigation, RouteProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -13,6 +14,7 @@ import {RootStackParamList} from '../navigation/MainStack';
 import {API_URL} from '@env';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Ionicons} from '@expo/vector-icons';
+import {getStoredUserData} from '../services/auth'; // ✅ 로그인 확인 함수
 
 type ReviewListRouteProp = RouteProp<RootStackParamList, 'ReviewList'>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -23,7 +25,7 @@ const ReviewListScreen = () => {
   const {menuId, menuName, imageUrl, brandName} = route.params;
 
   const [reviews, setReviews] = useState([]);
-  const [order, setOrder] = useState<'desc' | 'asc'>('desc'); // 최신순 기본
+  const [order, setOrder] = useState<'desc' | 'asc'>('desc');
 
   const fetchReviews = async () => {
     try {
@@ -41,22 +43,38 @@ const ReviewListScreen = () => {
     fetchReviews();
   }, [menuId, order]);
 
+  const handleWriteReview = async () => {
+    const user = await getStoredUserData();
+    if (!user) {
+      Alert.alert('로그인이 필요합니다.', '', [
+        {
+          text: '확인',
+          onPress: () => navigation.navigate('Login'), // ✅ 로그인 화면 이동
+        },
+      ]);
+    } else {
+      navigation.navigate('ReviewWrite', {
+        menuId,
+        menuName,
+        imageUrl,
+        brandName,
+      });
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* 뒤로가기 */}
       <View style={styles.backHeader}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
       </View>
 
-      {/* 메뉴 정보 */}
       <View style={styles.header}>
         <Image source={{uri: imageUrl}} style={styles.image} />
         <Text style={styles.title}>{menuName}</Text>
       </View>
 
-      {/* 정렬 탭 */}
       <View style={styles.tabContainer}>
         <TouchableOpacity onPress={() => setOrder('desc')}>
           <Text style={[styles.tab, order === 'desc' && styles.tabSelected]}>
@@ -71,7 +89,6 @@ const ReviewListScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* 리뷰 목록 */}
       <FlatList
         data={reviews}
         keyExtractor={(item, index) => index.toString()}
@@ -84,22 +101,19 @@ const ReviewListScreen = () => {
               </View>
               {item.imageUrls?.length > 0 && (
                 <View style={styles.imageGroup}>
-                  {item.imageUrls
-                    .slice(0, 2)
-                    .map((url: string, idx: number) => (
-                      <Image
-                        key={idx}
-                        source={{uri: url}}
-                        style={styles.reviewImage}
-                        resizeMode="cover"
-                      />
-                    ))}
+                  {item.imageUrls.slice(0, 2).map((url: string, idx: number) => (
+                    <Image
+                      key={idx}
+                      source={{uri: url}}
+                      style={styles.reviewImage}
+                      resizeMode="cover"
+                    />
+                  ))}
                 </View>
               )}
             </View>
             <Text style={styles.sub}>
-              맛: {item.taste} / 양: {item.amount} / 재방문:{' '}
-              {item.wouldVisitAgain}
+              맛: {item.taste} / 양: {item.amount} / 재방문: {item.wouldVisitAgain}
               {item.pairedMenuName ? ` / 콤보: ${item.pairedMenuName}` : ''}
             </Text>
           </View>
@@ -111,17 +125,7 @@ const ReviewListScreen = () => {
         contentContainerStyle={{paddingBottom: 80}}
       />
 
-      {/* 리뷰 작성 버튼 */}
-      <TouchableOpacity
-        style={styles.writeButton}
-        onPress={() =>
-          navigation.navigate('ReviewWrite', {
-            menuId,
-            menuName,
-            imageUrl,
-            brandName,
-          })
-        }>
+      <TouchableOpacity style={styles.writeButton} onPress={handleWriteReview}>
         <Text style={styles.writeText}>리뷰 작성하기</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -136,10 +140,10 @@ const styles = StyleSheet.create({
   title: {fontSize: 20, fontWeight: 'bold'},
   tabContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start', // ✅ 오른쪽 정렬
+    justifyContent: 'flex-start',
     marginBottom: 8,
     gap: 1,
-    paddingHorizontal: 16, // 선택 (오른쪽 여백 추가)
+    paddingHorizontal: 16,
   },
   tab: {
     fontSize: 14,

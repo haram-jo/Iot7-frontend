@@ -29,8 +29,8 @@ const CalendarMonthSelect = ({
 }) => {
   const yearListRef = useRef(null);
   const monthListRef = useRef(null);
-  // 연도 & 월 리스트 생성 및 보여줄 값계산산
-  const allYear = Array.from({length: 55}, (_, i) => 1990 + i);
+  // 연도 & 월 리스트 생성 및 보여줄 값 계산
+  const allYear = Array.from({length: 15}, (_, i) => 2020 + i);
   const allMonth = Array.from({length: 12}, (_, i) => i + 1);
 
   // 뒤로가기 버튼

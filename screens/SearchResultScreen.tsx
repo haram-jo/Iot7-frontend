@@ -5,6 +5,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {useRoute, useNavigation, RouteProp} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -32,8 +35,10 @@ const SearchResultScreen = () => {
   const [allSearchResults, setAllSearchResults] = useState(initialResults); //🔹전체 검색 결과 저장
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [searchKeyword, setSearchKeyword] = useState(''); //🔹현재 검색어 상태
+  const [isSearchFocused, setIsSearchFocused] = useState(false); // 🔍 검색창 포커스 여부
+  const [hotKeywords, setHotKeywords] = useState<string[]>([]); // 🔥 급상승 키워드 목록
 
-  // ✅ 검색창에서 키워드검색시 실행되는 함수
+  // ✅ 검색 실행 함수
   const handleSearch = async (keyword: string) => {
     try {
       setSearchKeyword(keyword); // 현재 검색어 상태 저장
@@ -114,10 +119,103 @@ const SearchResultScreen = () => {
     setResults(filtered);
   };
 
+  //🔥  5. 급상승 키워드 백엔드 호출
+  const fetchHotKeywords = async () => {
+    try {
+      const response = await fetch(`${API_URL}/click/hot-keywords`);
+      const data = await response.json();
+      setHotKeywords(data.map((item: any) => item.menuName));
+    } catch (error) {
+      console.error('🔥 급상승 키워드 로딩 실패:', error);
+    }
+  };
+
+  // 🔥 6. 급상승 키워드 클릭시 상세페이지 이동 함수
+  const handleKeywordPress = async (keyword: string) => {
+    setIsSearchFocused(false); // 오버레이 닫기
+
+    try {
+      const response = await fetch(
+        `${API_URL}/menu/search?keyword=${encodeURIComponent(keyword)}`,
+      );
+      const data = await response.json();
+
+      const exactMatch = data.find((item: any) => item.menuName === keyword);
+
+      if (exactMatch) {
+        //@ts-ignore
+        navigation.navigate('Product', {menuId: exactMatch.menuId});
+      } else {
+        console.warn('정확히 일치하는 메뉴가 없습니다.');
+      }
+    } catch (error) {
+      console.error('검색 중 오류:', error);
+    }
+  };
+
   return (
-    <ScrollView style={{flex: 1, backgroundColor: '#fff'}}>
+    <View style={{flex: 1, backgroundColor: '#fff'}}>
+      {/* ✅ 1. 고정된 검색창 */}
       <View style={{paddingTop: 45}}>
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar
+          showBackButton={true} // ✅ 뒤로가기 버튼 표시
+          onSearch={handleSearch}
+          onFocus={() => {
+            setIsSearchFocused(true);
+            fetchHotKeywords();
+          }}
+          onBlur={() => {
+            setIsSearchFocused(false);
+            Keyboard.dismiss();
+          }}
+        />
+      </View>
+
+      {/* ✅ 2. 급상승 키워드 UI  */}
+      {/* 검색창에 포커스될 때(true일때)만 아래 UI가 보여짐 */}
+      {isSearchFocused && (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            setIsSearchFocused(false);
+            Keyboard.dismiss();
+          }}>
+          <View
+            style={{
+              position: 'absolute',
+              top: 97, // 🔥 검색창 높이 + padding 만큼 내려서 아래만 덮기(잊어버리지마)
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: '#fff',
+              zIndex: 999,
+              elevation: 5,
+              paddingHorizontal: 20,
+              paddingTop: 16,
+            }}>
+            <KeyboardAvoidingView>
+              <Text
+                style={{fontWeight: 'bold', fontSize: 16, marginBottom: 10}}>
+                🔥 급상승 검색어
+              </Text>
+              {hotKeywords.map((keyword, index) => {
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleKeywordPress(keyword)}>
+                    <Text style={{fontSize: 15, paddingVertical: 6}}>
+                      {index + 1}. {keyword}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </KeyboardAvoidingView>
+          </View>
+        </TouchableWithoutFeedback>
+      )}
+
+      {/* ✅ 3. 필터 버튼 + 검색 결과 영역 (스크롤 가능) */}
+      <ScrollView style={{flex: 1}}>
+        {/* 필터 버튼 영역 */}
         <View
           style={{
             flexDirection: 'row',
@@ -125,22 +223,22 @@ const SearchResultScreen = () => {
             paddingHorizontal: 20,
             marginBottom: 10,
           }}>
-          {/*✅ 브랜드필터 버튼 ui*/}
+          {/* 브랜드 필터 */}
           <TouchableOpacity
             onPress={() => setBrandModalVisible(true)}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: '#f0f0f0', // 배경색
+              backgroundColor: '#f0f0f0',
               paddingHorizontal: 12,
               paddingVertical: 6,
-              borderRadius: 20, // 타원형 만들기
+              borderRadius: 20,
             }}>
             <Icon name="storefront-outline" size={20} color="#333" />
             <Text style={{fontSize: 14, marginLeft: 4}}>브랜드</Text>
           </TouchableOpacity>
 
-          {/*✅ 일반필터 버튼 ui*/}
+          {/* 일반 필터 */}
           <TouchableOpacity
             onPress={() => setModalVisible(true)}
             style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
@@ -148,80 +246,77 @@ const SearchResultScreen = () => {
             <Text style={{fontSize: 14}}>필터</Text>
           </TouchableOpacity>
         </View>
-      </View>
 
-      {/*✅ 상세페이지 이동 추가*/}
-      <View style={{padding: 16}}>
-        {Array.isArray(results) && results.length > 0 ? (
-          results.map((menu, idx) => (
-            <TouchableOpacity
-              key={menu.menuId || idx}
-              onPress={() =>
-                navigation.navigate('Product', {
-                  menuId: menu.menuId,
-                })
-              }
-              style={{
-                marginBottom: 15,
-                backgroundColor: '#fff',
-                padding: 12,
-                borderRadius: 8,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 12,
-                shadowColor: '#ccc',
-                shadowOpacity: 0.3,
-                shadowOffset: {width: 0, height: 1},
-              }}>
-              {/* ✅ 이미지 보여주기 */}
-              {menu.imageUrl ? (
-                <Image
-                  source={{uri: menu.imageUrl}}
-                  style={{width: 70, height: 70, borderRadius: 6}}
-                  resizeMode="cover"
-                />
-              ) : (
-                <View
-                  style={{
-                    width: 70,
-                    height: 70,
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: 6,
-                  }}
-                />
-              )}
-              <View style={{flex: 1}}>
-                <Text style={{fontWeight: 'bold', fontSize: 16}}>
-                  {menu.menuName}
-                </Text>
-                <Text style={{color: '#333', marginTop: 4}}>
-                  {menu.price.toLocaleString()}원
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={{textAlign: 'center', marginTop: 20}}>
-            검색 결과가 없습니다.
-          </Text>
-        )}
-      </View>
+        {/* 결과 리스트 영역 */}
+        <View style={{padding: 16}}>
+          {results.length > 0 ? (
+            results.map((menu, idx) => (
+              <TouchableOpacity
+                key={menu.menuId || idx}
+                onPress={async () => {
+                  await fetch(`${API_URL}/click/log?menuId=${menu.menuId}`, {
+                    method: 'POST',
+                  });
+                  navigation.navigate('Product', {menuId: menu.menuId});
+                }}
+                style={{
+                  marginBottom: 15,
+                  backgroundColor: '#fff',
+                  padding: 12,
+                  borderRadius: 8,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  shadowColor: '#ccc',
+                  shadowOpacity: 0.3,
+                  shadowOffset: {width: 0, height: 1},
+                }}>
+                {menu.imageUrl ? (
+                  <Image
+                    source={{uri: menu.imageUrl}}
+                    style={{width: 70, height: 70, borderRadius: 6}}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View
+                    style={{
+                      width: 70,
+                      height: 70,
+                      backgroundColor: '#e0e0e0',
+                      borderRadius: 6,
+                    }}
+                  />
+                )}
+                <View style={{flex: 1}}>
+                  <Text style={{fontWeight: 'bold', fontSize: 16}}>
+                    {menu.menuName}
+                  </Text>
+                  <Text style={{color: '#333', marginTop: 4}}>
+                    {menu.price.toLocaleString()}원
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={{textAlign: 'center', marginTop: 20}}>
+              검색 결과가 없습니다.
+            </Text>
+          )}
+        </View>
+      </ScrollView>
 
-      {/* ✅ 모달 컴포넌트 */}
+      {/* ✅ 모달들 */}
       <FilterModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onApply={handleApplyFilter}
       />
-
-      {/* ✅ 브랜드 모달 컴포넌트 */}
       <BrandFilterModal
         visible={brandModalVisible}
         onClose={() => setBrandModalVisible(false)}
         onSelectBrand={handleBrandSelect}
       />
-    </ScrollView>
+    </View>
   );
 };
-
 export default SearchResultScreen;

@@ -143,7 +143,24 @@ const BrandMenuListScreen = () => {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => navigation.navigate('Product', {menuId: item.menuId})}>
+        onPress={async () => {
+          try {
+            // ✅ 클릭 로그를 백엔드로 전송 ✅
+            const response = await fetch(
+              `${API_URL}/click/log?menuId=${item.menuId}`,
+              {
+                method: 'POST',
+              },
+            );
+            const result = await response.text();
+            console.log('🔥 브랜드 메뉴 클릭 로그 응답:', result);
+          } catch (error) {
+            console.error('❌ 클릭 로그 전송 실패:', error);
+          }
+
+          // ✅ 상세 페이지로 이동
+          navigation.navigate('Product', {menuId: item.menuId});
+        }}>
         <Image source={{uri: imageUrl}} style={styles.image} />
         <Text style={styles.name}>{item.menuName}</Text>
         <Text style={styles.price}>{item.price}원</Text>

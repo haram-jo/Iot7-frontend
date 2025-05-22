@@ -4,9 +4,10 @@
 로컬 환경에서 앱을 실행하기 위한 가이드를 아래 순서대로 따라주세요.
 
 ---
+
 ## ✅ 0. 환경 설정정
-.env파일 생성
-#개인 IP주소로 변경 (터미널에서 "ipconfig"로 확인)
+
+.env파일 생성 #개인 IP주소로 변경 (터미널에서 "ipconfig"로 확인)
 API_URL=http://"개인 IP주소":8080
 
 ## ✅ 1. 의존성 설치
@@ -16,6 +17,7 @@ API_URL=http://"개인 IP주소":8080
 ```bash
 npm install
 ```
+
 ---
 
 ## 📱 2. Expo CLI 설치 (처음 한 번만)
@@ -25,9 +27,11 @@ Expo CLI가 없다면 전역으로 설치해 주세요.
 ```bash
 npm install -g expo-cli
 ```
+
 ---
 
-## 🚀 3. 앱 실행 (로컬 or 에뮬레이터)
+## 🚀 3. 앱 실행 (로컬 or 에뮬레이터, , 안드로이드의 경우 알람이 안뜰시, 3-2번으로 )
+
 ```bash
 npx expo start
 ```
@@ -41,6 +45,23 @@ npx expo start
   - `i`: iOS 시뮬레이터 (macOS에서만 가능)
 
 ---
+
+### 3-2. Expo, 안드로이드 알람관련 설정 (Expo SDK 53이후 버전)
+
+- ㄱ. 빌드 명령어 입력
+
+```bash
+npx eas build --platform android --profile development
+```
+
+- ㄴ. URL 클릭 후 기기에 설치파일 설치 (URL 예시 : https://expo.dev/accounts/harami/projects/new_menu/builds/357d1a3f-79ec-4475-b5bf-8e9852ee0da6)
+- ㄷ. 코드 실행
+
+```bash
+npx expo start --dev-client -c
+```
+
+- ㄹ. QR코드 스캔으로 코드 실행
 
 ## 📱 4. 안드로이드 에뮬레이터로 실행하려면
 
@@ -120,8 +141,7 @@ npx expo start
 ## 🛠️ 기술 스택
 
 - React Native (Expo)
-- JavaScript / TypeScript (선택사항)
+- JavaScript / TypeScript
 - Android Emulator or Expo Go
 
 ---
-

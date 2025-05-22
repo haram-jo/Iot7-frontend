@@ -22,6 +22,7 @@ import styles, {ITEM_WIDTH, SPACING} from '../styles/ProductDetailStyles';
 import {useContext} from 'react';
 import {AuthContext} from '../contexts/AuthContext';
 import Toast from 'react-native-root-toast';
+import {useFocusEffect} from '@react-navigation/native';
 
 const {width} = Dimensions.get('window');
 
@@ -34,9 +35,10 @@ const ProductDetailScreen = () => {
   const {menuId} = route.params;
   const [popularMenus, setPopularMenus] = useState<any[]>([]);
   const {user} = useContext(AuthContext);
+  const [hotMenus, setHotMenus] = useState([]);
 
   const [menuDetail, setMenuDetail] = useState<any>(null);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false); // 구독 기능
   const [userLocation, setUserLocation] = useState<any>(null);
   const [nearestStores, setNearestStores] = useState<any[]>([]);
   const [currentStoreIndex, setCurrentStoreIndex] = useState(0);
@@ -44,24 +46,28 @@ const ProductDetailScreen = () => {
   const markerRefs = useRef<(MapMarker | null)[]>([]); // ✅ 지도 말풍선 자동 표시
   const userMarkerRef = useRef<MapMarker | null>(null);
 
-  //✅ 1. 화면진입시 구독여부에 따른 하트색깔 보여주는 함수
-  useEffect(() => {
-    if (!menuDetail || !user) return;
+  //✅ 1. 구독여부에 따른 하트색깔 보여주는 함수
+  const checkIsLiked = async () => {
+    try {
+      const response = await fetch(
+        `${API_URL}/api/menu-subscribe/check?userId=${user.userId}&menuId=${menuId}`,
+      );
+      const result = await response.json();
+      setIsLiked(result);
+    } catch (error) {
+      console.error('구독 여부 확인 실패:', error);
+    }
+  };
 
-    const checkIsLiked = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/menu-subscribe/check?userId=${user.userId}&menuId=${menuId}`,
-        );
-        const result = await response.json();
-        setIsLiked(result);
-      } catch (error) {
-        console.error('구독 여부 확인 실패:', error);
+  // ✅ 1-2. 화면 진입 시마다 상태 확인
+  useFocusEffect(
+    // 진입마다 구독 상태 다시 불러오기 위해 useFocusEffect 사용
+    React.useCallback(() => {
+      if (user && menuId) {
+        checkIsLiked();
       }
-    };
-
-    checkIsLiked();
-  }, [menuDetail, user]);
+    }, [user, menuId]),
+  );
 
   // ✅ 2. 하트 눌렀을때 구독 or 취소해주는 함수
   const toggleLike = async () => {
@@ -166,8 +172,12 @@ const ProductDetailScreen = () => {
           )}`,
         );
         const data = await response.json();
-        const filtered = data.filter((item: any) => item.menuId !== menuId);
-        setPopularMenus(filtered); // 자기 자신 제외
+
+        //자기 자신 제외
+        const filtered = data
+          .filter((item: any) => item.menuId !== menuId)
+          .slice(0, 7); // 🔥 여기서 상위 7개 자르기
+        setPopularMenus(filtered);
       } catch (error) {
         console.error('인기 상품 불러오기 오류:', error);
       }
@@ -178,7 +188,28 @@ const ProductDetailScreen = () => {
     }
   }, [menuDetail]);
 
-  // ✅ 6. 첫 번째 가까운 매장 말풍선 자동 표시
+  // ✅ 6. 클릭 수 기준 핫한 메뉴 API 호출
+  useEffect(() => {
+    const fetchHotMenus = async () => {
+      try {
+        const response = await fetch(`${API_URL}/click/hot`);
+        const data = await response.json();
+        console.log('🔥 요즘 핫한 메뉴 응답:', data);
+
+        //자기 자신 제외
+        const filtered = data.filter((item: any) => item.menuId !== menuId);
+        setHotMenus(filtered);
+      } catch (error) {
+        console.error('🔥 요즘 핫한 메뉴 불러오기 오류:', error);
+      }
+    };
+
+    if (menuId) {
+      fetchHotMenus();
+    }
+  }, [menuId]);
+
+  // ✅ 7. 첫 번째 가까운 매장 말풍선 자동 표시
   useEffect(() => {
     if (nearestStores.length === 0) return;
 
@@ -195,7 +226,7 @@ const ProductDetailScreen = () => {
     setTimeout(tryShowFirstCallout, 800);
   }, [nearestStores]);
 
-  // ✅ 7. 현재 매장 바뀔 때 말풍선 띄우기
+  // ✅ 8. 현재 매장 바뀔 때 말풍선 띄우기
   useEffect(() => {
     const targetMarker = markerRefs.current[currentStoreIndex];
     if (targetMarker) {
@@ -205,7 +236,7 @@ const ProductDetailScreen = () => {
     }
   }, [currentStoreIndex]);
 
-  // ✅ 8. 말풍선 고정할수있는 기능! - 리엑트 map엔 없어서 강제 재실행해서 띄워놈
+  // ✅ 9. 말풍선 고정할수있는 기능! - 리엑트 map엔 없어서 강제 재실행해서 띄워놈
   useEffect(() => {
     const interval = setInterval(() => {
       const marker = markerRefs.current[currentStoreIndex];
@@ -219,7 +250,7 @@ const ProductDetailScreen = () => {
 
   if (!menuDetail) return <Text style={styles.loading}>로딩중...</Text>;
 
-  // ✅ 9. 선택된 매장에서 다음 매장으로 지도 이동
+  // ✅ 10. 선택된 매장에서 다음 매장으로 지도 이동
   const goToNextStore = () => {
     if (nearestStores.length === 0) return; //  // 매장이 없으면 아무것도 안 함
 
@@ -321,7 +352,7 @@ const ProductDetailScreen = () => {
         </View>
 
         {/* 📍클릭수 기준 인기상품📍 */}
-        <Text style={styles.sectionTitle}>이 브랜드의 인기상품</Text>
+        <Text style={styles.sectionTitle}>이 브랜드의 인기메뉴</Text>
 
         {popularMenus.length > 0 ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -329,9 +360,24 @@ const ProductDetailScreen = () => {
               {popularMenus.map((item, idx) => (
                 <TouchableOpacity
                   key={item.menuId}
-                  onPress={() =>
-                    navigation.navigate('Product', {menuId: item.menuId})
-                  }
+                  onPress={async () => {
+                    try {
+                      // ✅ 클릭 로그 백엔드로 전송 ✅
+                      const response = await fetch(
+                        `${API_URL}/click/log?menuId=${item.menuId}`,
+                        {
+                          method: 'POST',
+                        },
+                      );
+                      const result = await response.text();
+                      console.log('🔥  클릭 로그 전송 완료:', result);
+                    } catch (error) {
+                      console.error('❌ 인기상품 클릭 로그 전송 실패:', error);
+                    }
+
+                    // ✅ 상세 페이지로 이동
+                    navigation.navigate('Product', {menuId: item.menuId});
+                  }}
                   style={styles.card}>
                   <View style={styles.imageFrame}>
                     <Image
@@ -346,15 +392,47 @@ const ProductDetailScreen = () => {
         ) : (
           <Text style={{color: '#888'}}>인기 상품이 없습니다.</Text>
         )}
-        {/*📍추천메뉴 (임시 박스)📍 */}
-        <Text style={styles.sectionTitle}>다른 추천 메뉴</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.horizontalCards}>
-            {[...Array(6)].map((_, idx) => (
-              <View key={idx} style={styles.card} />
-            ))}
-          </View>
-        </ScrollView>
+        {/*📍요즘 핫한 메뉴 (임시 박스)📍 */}
+        <Text style={styles.sectionTitle}>요즘 핫한 메뉴</Text>
+
+        {hotMenus.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.horizontalCards}>
+              {hotMenus.map((item, idx) => (
+                <TouchableOpacity
+                  key={item.menuId}
+                  onPress={async () => {
+                    try {
+                      // ✅ 클릭 로그 저장
+                      const response = await fetch(
+                        `${API_URL}/click/log?menuId=${item.menuId}`,
+                        {
+                          method: 'POST',
+                        },
+                      );
+                      const result = await response.text();
+                      console.log('🔥 클릭 로그 전송 완료:', result);
+                    } catch (error) {
+                      console.error('❌ 핫한 메뉴 클릭 로그 실패:', error);
+                    }
+
+                    // ✅ 상세 페이지 이동
+                    navigation.navigate('Product', {menuId: item.menuId});
+                  }}
+                  style={styles.card}>
+                  <View style={styles.imageFrame}>
+                    <Image
+                      source={{uri: item.imageUrl}}
+                      style={styles.zoomedImage}
+                    />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        ) : (
+          <Text style={{color: '#888'}}>🔥 요즘 핫한 메뉴가 없습니다.</Text>
+        )}
         {/*📍블로그 리뷰📍 */}
         <Text style={styles.sectionTitle}>블로그 리뷰</Text>
         {menuDetail.blogPosts?.length > 0 ? (

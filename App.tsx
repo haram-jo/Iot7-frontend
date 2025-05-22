@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import MainStack from './navigation/MainStack';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {AuthProvider} from './contexts/AuthContext';
@@ -20,6 +20,14 @@ Notifications.setNotificationHandler({
 });
 
 const App = () => {
+  // ✅ 여기에서 알림 채널 등록 (Android용)
+  useEffect(() => {
+    Notifications.setNotificationChannelAsync('default', {
+      name: '기본 알림',
+      importance: Notifications.AndroidImportance.HIGH, //중요도 높게
+      sound: 'default',
+    });
+  }, []);
   return (
     <RootSiblingParent>
       <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
