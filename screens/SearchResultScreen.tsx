@@ -59,25 +59,28 @@ const SearchResultScreen = () => {
 
   // ✅ 필터 조건에 따라 결과 목록 정렬하는 함수
   const handleApplyFilter = async (filters: any) => {
+    console.log('🧪 필터 적용 시작:', filters); // ✅ 필터 값 찍기
+
     let filtered = [...allSearchResults]; // 🔥 항상 최신 전체 결과 기준으로 필터링
 
     // ✅ 1. 재료 키워드 필터링 (ex: '우유' 포함된 메뉴만 보기)
     if (filters.ingredientKeyword) {
-      filtered = filtered.filter(item =>
-        item.ingredients
-          ?.toLowerCase()
-          .includes(filters.ingredientKeyword.toLowerCase()),
-      );
+      console.log('🔥 포함 필터링 진입함');
+      filtered = filtered.filter(item => {
+        console.log('🧪 전체 아이템 구조 확인:', item);
+        return (item.description || '')
+          .toLowerCase()
+          .includes(filters.ingredientKeyword.toLowerCase());
+      });
     }
-
     // ✅ 2. 재료 제외 키워드 필터링 (ex: '우유' 제외한 메뉴만 보기)
     if (filters.excludeKeyword) {
-      filtered = filtered.filter(
-        item =>
-          !item.ingredients
-            ?.toLowerCase()
-            .includes(filters.excludeKeyword.toLowerCase()),
-      );
+      console.log('🔥 제외 필터링 진입함');
+      filtered = filtered.filter(item => {
+        return !(item.description || '')
+          .toLowerCase()
+          .includes(filters.excludeKeyword.toLowerCase());
+      });
     }
 
     // 브랜드 필터링도 함께 적용 (브랜드 선택된 경우)
