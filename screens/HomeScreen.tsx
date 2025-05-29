@@ -121,14 +121,14 @@ const HomeScreen = () => {
           <View
             style={{
               position: 'absolute',
-              top: 120,
+              top: 150,
               left: 0,
               right: 0,
               bottom: 0,
               backgroundColor: '#fff',
               zIndex: 999,
               elevation: 5,
-              paddingTop: height * 0, // 검색창과 노란 배경 조정
+              paddingTop: height * 0.02, // 검색창과 노란 배경 조정
               paddingHorizontal: 20,
             }}>
             <KeyboardAvoidingView>

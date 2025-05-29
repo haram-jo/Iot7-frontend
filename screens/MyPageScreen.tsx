@@ -21,7 +21,8 @@ import {RootStackParamList} from '../navigation/MainStack';
 import {AuthContext} from '../contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SafeAreaView} from 'react-native-safe-area-context';
-
+import axios from 'axios';
+import {API_URL} from '@env';
 const MyPage = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -132,11 +133,43 @@ const MyPage = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.iconButton}
-                onPress={() => requireLogin('Main')}>
+                onPress={async () => {
+                  if (!userData) return;
+
+                  const nextState = userData.notificationYn === 'Y' ? 'N' : 'Y';
+
+                  try {
+                    // 서버에 PATCH 요청
+                    await axios.patch(
+                      `${API_URL}/api/push-token/toggle`,
+                      null,
+                      {
+                        params: {
+                          userId: userData.userId,
+                          enabled: nextState === 'Y',
+                        },
+                      },
+                    );
+
+                    // 로컬 상태 업데이트
+                    setUserData({...userData, notificationYn: nextState});
+                    Alert.alert(
+                      '알림 설정',
+                      nextState === 'Y'
+                        ? '알림이 켜졌습니다.'
+                        : '알림이 꺼졌습니다.',
+                    );
+                  } catch (err) {
+                    console.error('알림 토글 실패:', err);
+                    Alert.alert('오류', '알림 설정 변경에 실패했습니다.');
+                  }
+                }}>
                 <MaterialCommunityIcons
-                  name="bell-ring"
+                  name={
+                    userData?.notificationYn === 'Y' ? 'bell-ring' : 'bell-off'
+                  }
                   size={30}
-                  color="#3366ff"
+                  color={userData?.notificationYn === 'Y' ? '#3366ff' : '#aaa'}
                 />
                 <Text style={styles.iconLabel}>알림</Text>
               </TouchableOpacity>

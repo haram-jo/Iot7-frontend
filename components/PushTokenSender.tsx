@@ -26,12 +26,15 @@ const PushTokenSender = () => {
         const res = await axios.get(`${API_URL}/api/push-token`, {
           params: {userId: user.userId},
         });
-        const savedToken = res.data;
-        console.log('🧾 서버 저장된 토큰:', savedToken);
+        const {token: savedToken, notificationYn} = res.data;
 
-        // ✅ 2. 이미 있으면 아무것도 안 함
+        if (notificationYn === 'N') {
+          console.log('🔕 사용자가 알림을 꺼둠 – 토큰 발급 생략');
+          return;
+        }
+
         if (savedToken) {
-          console.log('✅ 기존 토큰 존재 - 발급 생략');
+          console.log('✅ 기존 토큰 존재 – 발급 생략');
           return;
         }
 

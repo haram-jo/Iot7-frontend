@@ -4,4 +4,5 @@ export interface UserData {
   email: string;
   preferredFood: string;
   allergicFood: string;
+  notificationYn: 'Y' | 'N';
 }

@@ -1,22 +1,16 @@
 import React, {useState, useRef} from 'react';
 import {
   View,
-  Text,
   TextInput,
   Dimensions,
   TouchableOpacity,
   Keyboard,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {API_URL} from '@env';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-
-// 1. 사용자의 검색어 입력만 처리
-// 2. 검색 버튼 또는 키보드 제출 시 `onSearch`를 호출해서 검색어 전달
-// 3. 포커스될 때 `onFocus`를 호출하여 부모(HomeScreen)가 급상승 키워드 UI를 띄울 수 있도록
-// 4. SearchBar는 onFocus, onSearch만 담당
-// 5. 급상승 키워드 UI 자체는 HomeScreen이 담당
+import {API_URL} from '@env';
 
 const {width, height} = Dimensions.get('window');
 
@@ -26,18 +20,31 @@ const SearchBar = ({onSearch, onFocus, onBlur, showBackButton = false}) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList, 'Product'>>();
 
-  //✅현재 입력된 검색어로 검색 실행
   const handleSearch = () => {
     if (onSearch && input.trim() !== '') {
       onSearch(input);
       Keyboard.dismiss();
-      onBlur?.(); // ✅ 검색 후 오버레이 닫기
+      onBlur?.();
     }
   };
 
   return (
-    <>
-      {/* 검색창 */}
+    <View style={{marginTop: width * 0.13, position: 'relative'}}>
+      {/* 로고 (검색창 왼쪽 위에 겹치게 배치) */}
+      <Image
+        source={require('../../assets/images/log_1.png')}
+        style={{
+          position: 'absolute',
+          top: -width * 0.125, // 검색창 위로 살짝 올라가게
+          left: width * 0.05,
+          width: width * 0.2,
+          height: width * 0.2,
+          resizeMode: 'contain',
+          zIndex: 10, // 검색창 위로 올라오게
+        }}
+      />
+
+      {/* 검색창 전체 래퍼 */}
       <View
         style={{
           flexDirection: 'row',
@@ -49,20 +56,20 @@ const SearchBar = ({onSearch, onFocus, onBlur, showBackButton = false}) => {
           borderRadius: 10,
           paddingHorizontal: width * 0.03,
           elevation: 2,
-          marginVertical: width * 0.03,
-          zIndex: 1000,
-          position: 'relative',
+          marginBottom: 10,
         }}>
-        {/* 메뉴 아이콘 */}
-        {/* 조건부로 뒤로가기 또는 메뉴 아이콘 */}
+        {/* 왼쪽: 메뉴 또는 뒤로가기 아이콘 */}
         {showBackButton ? (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name="arrow-back" size={width * 0.06} color="#333" />
           </TouchableOpacity>
         ) : (
-          <Icon name="menu" size={width * 0.06} color="#333" />
+          <TouchableOpacity onPress={() => console.log('메뉴 눌림')}>
+            <Icon name="menu" size={width * 0.06} color="#333" />
+          </TouchableOpacity>
         )}
-        {/* 사용자 입력창 */}
+
+        {/* 중간: 입력창 */}
         <TextInput
           ref={inputRef}
           placeholder="메뉴를 검색하세요"
@@ -70,17 +77,17 @@ const SearchBar = ({onSearch, onFocus, onBlur, showBackButton = false}) => {
           onChangeText={setInput}
           onSubmitEditing={handleSearch}
           onFocus={() => {
-            onFocus?.(); // {/*부모(HomeScreen)의 급상승 키워드 표시*}
+            onFocus?.();
           }}
           style={{
             flex: 1,
             marginLeft: width * 0.03,
-            paddingVertical: width * 0.02,
             fontSize: width * 0.04,
+            paddingVertical: 0,
           }}
         />
 
-        {/*검색 아이콘 버튼 */}
+        {/* 오른쪽: 검색 아이콘 */}
         <TouchableOpacity
           onPress={() => {
             inputRef.current?.focus();
@@ -89,7 +96,7 @@ const SearchBar = ({onSearch, onFocus, onBlur, showBackButton = false}) => {
           <Icon name="search" size={width * 0.06} color="#333" />
         </TouchableOpacity>
       </View>
-    </>
+    </View>
   );
 };
 

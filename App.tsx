@@ -30,14 +30,12 @@ const App = () => {
   }, []);
   return (
     <RootSiblingParent>
-      <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-        <GestureHandlerRootView style={{flex: 1}}>
-          <AuthProvider>
-            <PushTokenSender />
-            <MainStack />
-          </AuthProvider>
-        </GestureHandlerRootView>
-      </SafeAreaView>
+      <GestureHandlerRootView style={{flex: 1}}>
+        <AuthProvider>
+          <PushTokenSender />
+          <MainStack />
+        </AuthProvider>
+      </GestureHandlerRootView>
     </RootSiblingParent>
   );
 };
